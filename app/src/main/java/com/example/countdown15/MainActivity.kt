@@ -25,29 +25,45 @@ class MainActivity : AppCompatActivity() {
         btnStart = findViewById(R.id.btnStart)
         btnStop = findViewById(R.id.btnStop)
 
-        // 一打开只显示 15，不自动倒计时
-        tvTimer.text = "15"
-        btnStart.visibility = Button.VISIBLE
-        btnStop.visibility = Button.GONE
+        // 初始状态：只显示开始按钮
+        showStartState()
 
         btnStart.setOnClickListener {
             startCountdown()
         }
 
         btnStop.setOnClickListener {
-            stopRingtone()
+            stopRingtoneAndReset()
         }
+    }
+
+    /** 初始 / 停止后：只显示开始按钮 */
+    private fun showStartState() {
+        tvTimer.visibility = TextView.GONE
+        btnStop.visibility = Button.GONE
+        btnStart.visibility = Button.VISIBLE
+    }
+
+    /** 倒计时中：只显示数字 */
+    private fun showCountingState() {
+        btnStart.visibility = Button.GONE
+        btnStop.visibility = Button.GONE
+        tvTimer.visibility = TextView.VISIBLE
+    }
+
+    /** 响铃中：只显示停止按钮 */
+    private fun showRingingState() {
+        tvTimer.visibility = TextView.GONE
+        btnStart.visibility = Button.GONE
+        btnStop.visibility = Button.VISIBLE
     }
 
     private fun startCountdown() {
         stopRingtone()
 
         timer?.cancel()
+        showCountingState()
         tvTimer.text = "15"
-
-        btnStop.visibility = Button.GONE
-        btnStart.visibility = Button.VISIBLE
-        btnStart.isEnabled = false
 
         timer = object : CountDownTimer(15_000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
@@ -56,11 +72,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onFinish() {
-                tvTimer.text = "0"
                 playRingtone()
-
-                btnStart.visibility = Button.GONE
-                btnStop.visibility = Button.VISIBLE
+                showRingingState()
             }
         }.start()
     }
@@ -84,11 +97,12 @@ class MainActivity : AppCompatActivity() {
         } finally {
             ringtone = null
         }
+    }
 
-        btnStop.visibility = Button.GONE
-        btnStart.visibility = Button.VISIBLE
-        btnStart.isEnabled = true
-        tvTimer.text = "15"
+    private fun stopRingtoneAndReset() {
+        stopRingtone()
+        timer?.cancel()
+        showStartState()
     }
 
     override fun onDestroy() {
