@@ -14,13 +14,29 @@
         android:textSize="120sp"
         android:textStyle="bold" />
 
-    <TextView
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="60dp"
-        android:text="点击屏幕重新计时"
-        android:textColor="#888888"
-        android:textSize="16sp" />
+        android:layout_marginBottom="80dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnStart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="开始"
+            android:textSize="20sp" />
+
+        <Button
+            android:id="@+id/btnStop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:text="停止"
+            android:textSize="20sp"
+            android:visibility="gone" />
+
+    </LinearLayout>
 
 </FrameLayout>
