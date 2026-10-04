@@ -9,34 +9,26 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="15"
         android:textColor="#FFFFFF"
         android:textSize="120sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:visibility="gone" />
 
-    <LinearLayout
+    <Button
+        android:id="@+id/btnStart"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="80dp"
-        android:orientation="horizontal">
+        android:layout_gravity="center"
+        android:text="开始"
+        android:textSize="28sp" />
 
-        <Button
-            android:id="@+id/btnStart"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="开始"
-            android:textSize="20sp" />
-
-        <Button
-            android:id="@+id/btnStop"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:text="停止"
-            android:textSize="20sp"
-            android:visibility="gone" />
-
-    </LinearLayout>
+    <Button
+        android:id="@+id/btnStop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="停止"
+        android:textSize="28sp"
+        android:visibility="gone" />
 
 </FrameLayout>
