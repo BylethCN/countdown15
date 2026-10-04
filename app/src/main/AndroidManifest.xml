@@ -4,7 +4,7 @@
     <application
         android:allowBackup="true"
         android:label="倒计时15秒"
-        android:theme="@style/Theme.AppCompat.NoActionBar">
+        android:theme="@style/AppTheme.AppCompat.NoActionBar">
         <activity
             android:name=".MainActivity"
             android:exported="true">
