@@ -17,6 +17,9 @@ class MainActivity : AppCompatActivity() {
     private var timer: CountDownTimer? = null
     private var ringtone: Ringtone? = null
 
+    // 标记当前是否正在倒计时，用于判断点屏幕要不要重新计时
+    private var isCounting = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -35,10 +38,18 @@ class MainActivity : AppCompatActivity() {
         btnStop.setOnClickListener {
             stopRingtoneAndReset()
         }
+
+        // 点屏幕任意位置：只有倒计时中才重新计时
+        findViewById<android.view.View>(android.R.id.content).setOnClickListener {
+            if (isCounting) {
+                startCountdown()
+            }
+        }
     }
 
     /** 初始 / 停止后：只显示开始按钮 */
     private fun showStartState() {
+        isCounting = false
         tvTimer.visibility = TextView.GONE
         btnStop.visibility = Button.GONE
         btnStart.visibility = Button.VISIBLE
@@ -46,6 +57,7 @@ class MainActivity : AppCompatActivity() {
 
     /** 倒计时中：只显示数字 */
     private fun showCountingState() {
+        isCounting = true
         btnStart.visibility = Button.GONE
         btnStop.visibility = Button.GONE
         tvTimer.visibility = TextView.VISIBLE
@@ -53,6 +65,7 @@ class MainActivity : AppCompatActivity() {
 
     /** 响铃中：只显示停止按钮 */
     private fun showRingingState() {
+        isCounting = false
         tvTimer.visibility = TextView.GONE
         btnStart.visibility = Button.GONE
         btnStop.visibility = Button.VISIBLE
