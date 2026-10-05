@@ -144,7 +144,7 @@ class WheelPicker @JvmOverloads constructor(
             MotionEvent.ACTION_MOVE -> {
                 val dy = event.y - lastY
                 lastY = event.y
-                currentOffset -= dy / itemHeight
+                currentOffset += dy / itemHeight
                 invalidate()
                 return true
             }
@@ -203,7 +203,7 @@ class WheelPicker @JvmOverloads constructor(
     }
 
     private fun applyFinalOffset(target: Float) {
-        val delta = Math.round(target)
+        val delta = -Math.round(target)
         currentOffset = 0f
         if (delta != 0) {
             var newValue = value + delta
