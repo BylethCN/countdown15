@@ -82,35 +82,23 @@ class WheelPicker @JvmOverloads constructor(
         val centerY = height / 2f
         val half = visibleCount / 2
 
-        for (i in -half..half) {
-            val baseY = centerY + i * itemHeight
-            val y = baseY + currentOffset * itemHeight
+        // 多画两格，避免滑动中边缘露出空白
+        for (k in (-half - 2)..(half + 2)) {
+            // 屏幕位置：随 currentOffset 连续移动
+            val y = centerY + (k + currentOffset) * itemHeight
 
-            // 用带阈值的 snapValue 决定显示哪个值
-            val displayValue = value - snapValue(currentOffset) + i
-
+            // 值：k=0 是当前值，k 越大越往上（更小的值）
+            val displayValue = value - k
             val v = normalizeValue(displayValue) ?: continue
 
-            val distFromCenter = abs(y - centerY) / itemHeight
+            // 离中心的距离决定字号和透明度
+            val distFromCenter = abs(k + currentOffset)
             val t = (distFromCenter / 2f).coerceIn(0f, 1f)
             val scale = 1.0f - t * 0.45f
             val alpha = (255 - t * 195f).toInt()
 
             drawItem(canvas, v, y, scale, alpha)
         }
-    }
-
-    /**
-     * 带阈值的取整：
-     * 滑过 70% 才切换到下一格，更像行李箱密码锁的手感。
-     */
-    private fun snapValue(x: Float): Int {
-        val sign = if (x >= 0) 1 else -1
-        val absX = abs(x)
-        val intPart = absX.toInt()
-        val frac = absX - intPart
-        val carry = if (frac >= 0.7f) 1 else 0
-        return sign * (intPart + carry)
     }
 
     private fun normalizeValue(raw: Int): Int? {
@@ -147,6 +135,7 @@ class WheelPicker @JvmOverloads constructor(
             MotionEvent.ACTION_MOVE -> {
                 val dy = event.y - lastY
                 lastY = event.y
+                // 手指上滑 dy < 0，currentOffset 变负，数字往上滚（显示更大的值）
                 currentOffset += dy / itemHeight
                 invalidate()
                 return true
@@ -206,8 +195,9 @@ class WheelPicker @JvmOverloads constructor(
     }
 
     private fun applyFinalOffset(target: Float) {
-        // 与 onDraw 里 value - snapValue(currentOffset) 保持一致
-        val delta = -snapValue(target)
+        // 松手后，currentOffset 吸收进 value
+        // target 为正 → 数字往下滚 → value 变大
+        val delta = Math.round(target)
         currentOffset = 0f
         if (delta != 0) {
             var newValue = value + delta
