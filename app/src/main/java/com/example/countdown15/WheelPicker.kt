@@ -24,7 +24,7 @@ class WheelPicker @JvmOverloads constructor(
     var value: Int = 0
         private set
 
-    var wrapSelectorWheel: Boolean = true
+    var wrapSelectorWheel: Boolean = false
 
     private var visibleCount = 5
     private var itemHeight = 0f
@@ -84,10 +84,11 @@ class WheelPicker @JvmOverloads constructor(
 
         for (i in -half..half) {
             val baseY = centerY + i * itemHeight
-            // currentOffset 正值代表手指向上滑，视图向下滑，中间值增大
-            val y = baseY - currentOffset * itemHeight
+            val y = baseY + currentOffset * itemHeight
 
-            val displayValue = value + Math.round(currentOffset) + i
+            // 上滑时 currentOffset 变负，中间显示更大的值
+            val displayValue = value - Math.round(currentOffset) + i
+
             val v = normalizeValue(displayValue) ?: continue
 
             val distFromCenter = abs(y - centerY) / itemHeight
@@ -133,8 +134,7 @@ class WheelPicker @JvmOverloads constructor(
             MotionEvent.ACTION_MOVE -> {
                 val dy = event.y - lastY
                 lastY = event.y
-                // 上滑 dy < 0，增加 currentOffset，使得显示数字变大 (00 -> 01 -> 02)
-                currentOffset -= dy / itemHeight
+                currentOffset += dy / itemHeight
                 invalidate()
                 return true
             }
@@ -193,7 +193,8 @@ class WheelPicker @JvmOverloads constructor(
     }
 
     private fun applyFinalOffset(target: Float) {
-        val delta = Math.round(target)
+        // 与 onDraw 里 value - round(currentOffset) 保持一致
+        val delta = -Math.round(target)
         currentOffset = 0f
         if (delta != 0) {
             var newValue = value + delta
