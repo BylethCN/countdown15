@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="WhiteNumberPicker" parent="Widget.AppCompat.NumberPicker">
+    <style name="WhiteNumberPicker">
         <item name="android:textColorPrimary">#FFFFFF</item>
         <item name="android:textColorSecondary">#888888</item>
     </style>
