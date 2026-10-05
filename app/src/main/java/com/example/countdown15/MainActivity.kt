@@ -1,6 +1,7 @@
 package com.example.countdown15
 
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.media.Ringtone
 import android.media.RingtoneManager
 import android.os.Bundle
@@ -41,32 +42,36 @@ class MainActivity : AppCompatActivity() {
         npMinute = findViewById(R.id.npMinute)
         npSecond = findViewById(R.id.npSecond)
 
-        // 版本号
         tvVersion.text = "v" + getAppVersion()
 
-        // 初始化滚轮
+        // 小时：0~23
         npHour.minValue = 0
-        npHour.maxValue = 99
+        npHour.maxValue = 23
         npHour.value = 0
-        npHour.wrapSelectorWheel = true
+        npHour.wrapSelectorWheel = false   // 到 23 不再循环
+        npHour.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS
 
+        // 分钟：0~59
         npMinute.minValue = 0
         npMinute.maxValue = 59
         npMinute.value = 0
         npMinute.wrapSelectorWheel = true
+        npMinute.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS
 
+        // 秒：0~59
         npSecond.minValue = 0
         npSecond.maxValue = 59
         npSecond.value = 15
         npSecond.wrapSelectorWheel = true
+        npSecond.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS
 
         setPickerFormatter(npHour)
         setPickerFormatter(npMinute)
         setPickerFormatter(npSecond)
 
-        // 白色文字、加大字号、去掉上下渐变边界
         listOf(npHour, npMinute, npSecond).forEach { picker ->
             picker.setBackgroundColor(Color.TRANSPARENT)
+            removePickerDivider(picker)
             customizeNumberPickerText(picker)
         }
 
@@ -89,7 +94,25 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /** 通过反射改 NumberPicker 内部 EditText 的颜色和字号 */
+    /** 去掉 NumberPicker 上下两条分割线 */
+    private fun removePickerDivider(picker: NumberPicker) {
+        try {
+            val f = NumberPicker::class.java.getDeclaredField("mSelectionDivider")
+            f.isAccessible = true
+            f.set(picker, ColorDrawable(Color.TRANSPARENT))
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        try {
+            val f2 = NumberPicker::class.java.getDeclaredField("mSelectionDividerHeight")
+            f2.isAccessible = true
+            f2.set(picker, 0)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    /** 改内部 EditText 颜色和字号 */
     private fun customizeNumberPickerText(picker: NumberPicker) {
         try {
             val f = NumberPicker::class.java.getDeclaredField("mInputText")
