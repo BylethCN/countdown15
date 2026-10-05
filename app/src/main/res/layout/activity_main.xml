@@ -15,7 +15,7 @@
         android:textStyle="bold"
         android:visibility="gone" />
 
-    <!-- 时间选择器：三个 NumberPicker -->
+    <!-- 时间选择器 -->
     <LinearLayout
         android:id="@+id/timePickerLayout"
         android:layout_width="wrap_content"
@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:text=":"
             android:textColor="#000000"
-            android:textSize="48sp"
+            android:textSize="56sp"
             android:textStyle="bold"
             android:layout_marginHorizontal="4dp" />
 
@@ -50,7 +50,7 @@
             android:layout_height="wrap_content"
             android:text=":"
             android:textColor="#000000"
-            android:textSize="48sp"
+            android:textSize="56sp"
             android:textStyle="bold"
             android:layout_marginHorizontal="4dp" />
 
@@ -62,7 +62,7 @@
 
     </LinearLayout>
 
-    <!-- 开始按钮：圆形 -->
+    <!-- 开始按钮 -->
     <FrameLayout
         android:id="@+id/btnStart"
         android:layout_width="88dp"
@@ -82,7 +82,7 @@
 
     </FrameLayout>
 
-    <!-- 停止按钮：圆形，中间是方块 -->
+    <!-- 停止按钮 -->
     <FrameLayout
         android:id="@+id/btnStop"
         android:layout_width="88dp"
