@@ -87,7 +87,7 @@ class WheelPicker @JvmOverloads constructor(
             val y = baseY + currentOffset * itemHeight
 
             // 上滑 → currentOffset 变正 → 中间值变大
-            val displayValue = value + Math.round(currentOffset) - i
+            val displayValue = value + Math.round(currentOffset) + i
 
             val v = normalizeValue(displayValue) ?: continue
 
