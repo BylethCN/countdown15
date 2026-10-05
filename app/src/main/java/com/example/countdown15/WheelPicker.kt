@@ -86,11 +86,8 @@ class WheelPicker @JvmOverloads constructor(
             val baseY = centerY + i * itemHeight
             val y = baseY + currentOffset * itemHeight
 
-            // 屏幕第 i 行显示的值：
-            // 中间行 i=0 显示 value + round(-currentOffset)
-            // 上面行 i=-1 显示 value + round(-currentOffset) + 1
-            // 下面行 i=1 显示 value + round(-currentOffset) - 1
-            val displayValue = value - Math.round(currentOffset) + (-i)
+            // 上滑 → currentOffset 变正 → 中间值变大
+            val displayValue = value + Math.round(currentOffset) - i
 
             val v = normalizeValue(displayValue) ?: continue
 
@@ -137,7 +134,8 @@ class WheelPicker @JvmOverloads constructor(
             MotionEvent.ACTION_MOVE -> {
                 val dy = event.y - lastY
                 lastY = event.y
-                currentOffset += dy / itemHeight
+                // 上滑 dy < 0，currentOffset 变大
+                currentOffset -= dy / itemHeight
                 invalidate()
                 return true
             }
@@ -196,8 +194,7 @@ class WheelPicker @JvmOverloads constructor(
     }
 
     private fun applyFinalOffset(target: Float) {
-        // 松手吸附时，实际变化量 = -round(target)
-        val delta = -Math.round(target)
+        val delta = Math.round(target)
         currentOffset = 0f
         if (delta != 0) {
             var newValue = value + delta
