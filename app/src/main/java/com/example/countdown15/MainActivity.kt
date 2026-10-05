@@ -55,9 +55,8 @@ class MainActivity : AppCompatActivity() {
             stopRingtoneAndReset()
         }
 
-        // 只有倒计时数字显示时，点它才重新计时
-        // 这样不会拦截滚轮的触摸事件
-        tvTimer.setOnClickListener {
+        // 最外层点击：只有倒计时中才重新计时
+        findViewById<View>(R.id.rootLayout).setOnClickListener {
             if (isCounting) {
                 startCountdown()
             }

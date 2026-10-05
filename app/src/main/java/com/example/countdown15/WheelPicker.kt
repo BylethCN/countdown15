@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.VelocityTracker
 import android.view.View
@@ -68,7 +69,6 @@ class WheelPicker @JvmOverloads constructor(
         val width = (90 * resources.displayMetrics.density).toInt()
         var height = (itemHeight * visibleCount).toInt() + paddingTop + paddingBottom
 
-        // 兜底：如果高度算出异常小，强制给个最小值
         if (height < 100) {
             height = (itemHeight * visibleCount).toInt().coerceAtLeast(300)
         }
@@ -125,8 +125,9 @@ class WheelPicker @JvmOverloads constructor(
         }
     }
 
-    /** 关键改动：用 dispatchTouchEvent 确保事件一定进来 */
-    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        Log.d("WheelPicker", "touch: ${event.actionMasked}")
+
         if (velocityTracker == null) velocityTracker = VelocityTracker.obtain()
         velocityTracker?.addMovement(event)
 
@@ -158,7 +159,7 @@ class WheelPicker @JvmOverloads constructor(
                 return true
             }
         }
-        return true
+        return super.onTouchEvent(event)
     }
 
     private fun snapToNearest() {
