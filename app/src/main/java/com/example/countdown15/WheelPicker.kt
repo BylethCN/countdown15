@@ -83,31 +83,24 @@ class WheelPicker @JvmOverloads constructor(
         val half = visibleCount / 2
 
         for (i in -half..half) {
-            // 基准位置：屏幕第 i 行
-            val baseY = centerY + i * itemHeight
-            // 加上滑动偏移，让数字跟手滚动
-            val y = baseY + currentOffset * itemHeight
+    val baseY = centerY + i * itemHeight
+    val y = baseY + currentOffset * itemHeight
 
-            // 该行显示哪个值
-            val valueOffset = (i - currentOffset).toFloat()
-            val v = valueAtOffset(valueOffset) ?: continue
+    val valueOffset = (i - currentOffset).toFloat()
+    val v = valueAtOffset(valueOffset) ?: continue
 
-            // 按离中心的距离决定字号和透明度
-            val distFromCenter = abs(y - centerY) / itemHeight
-            val scale = when {
-                distFromCenter < 0.5f -> 1.0f
-                distFromCenter < 1.5f -> 0.75f
-                else -> 0.55f
-            }
-            val alpha = when {
-                distFromCenter < 0.5f -> 255
-                distFromCenter < 1.5f -> 120
-                else -> 60
-            }
+    // 离中心的距离：0 = 在正中，1 = 离一格，2 = 离两格
+    val distFromCenter = abs(y - centerY) / itemHeight
 
-            drawItem(canvas, v, y, scale, alpha)
-        }
-    }
+    // 连续插值
+    // dist = 0 时 scale = 1.0，dist = 2 时 scale = 0.55，中间线性过渡
+    val scale = 1.0f - (distFromCenter / 2f).coerceIn(0f, 1f) * 0.45f
+
+    // dist = 0 时 alpha = 255，dist = 2 时 alpha = 60
+    val alpha = (255 - (distFromCenter / 2f).coerceIn(0f, 1f) * 195f).toInt()
+
+    drawItem(canvas, v, y, scale, alpha)
+}
 
     private fun drawItem(canvas: Canvas, v: Int, y: Float, scale: Float, alpha: Int) {
         val text = String.format("%02d", v)
