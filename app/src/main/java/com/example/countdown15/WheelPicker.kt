@@ -59,7 +59,8 @@ class WheelPicker @JvmOverloads constructor(
             ta.recycle()
         }
         if (visibleCount % 2 == 0) visibleCount += 1
-        minFlingVelocity = ViewConfiguration.get(context).scaledMinimumFlingVelocity
+        // 提高触发甩动的门槛，只有真正快甩才触发惯性
+        minFlingVelocity = (ViewConfiguration.get(context).scaledMinimumFlingVelocity * 2.5f).toInt()
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -164,9 +165,9 @@ class WheelPicker @JvmOverloads constructor(
     }
 
     private fun fling(v: Float) {
-        // 系数 2f，单次最多 6 格，防止甩出很远
-        var delta = v * 2f
-        delta = delta.coerceIn(-6f, 6f)
+        // 系数 1.2f，单次最多 4 格，降低灵敏度
+        var delta = v * 1.2f
+        delta = delta.coerceIn(-4f, 4f)
         val target = Math.round(currentOffset + delta).toFloat()
         animateOffsetTo(target)
     }
