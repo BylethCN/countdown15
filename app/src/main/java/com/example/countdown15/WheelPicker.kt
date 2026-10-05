@@ -38,6 +38,8 @@ class WheelPicker @JvmOverloads constructor(
     private var velocityTracker: VelocityTracker? = null
     private var minFlingVelocity = 0
 
+    private var animRunnable: Runnable? = null
+
     var onValueChangedListener: ((Int) -> Unit)? = null
 
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -129,6 +131,11 @@ class WheelPicker @JvmOverloads constructor(
 
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
+                // 关键：按下瞬间取消正在跑的动画，并把当前偏移立即吸收进 value
+                animRunnable?.let { removeCallbacks(it) }
+                animRunnable = null
+                applyFinalOffset(currentOffset)
+
                 parent?.requestDisallowInterceptTouchEvent(true)
                 lastY = event.y
                 dragDistance = 0f
@@ -166,10 +173,7 @@ class WheelPicker @JvmOverloads constructor(
     }
 
     private fun fling(v: Float) {
-        // 速度决定基础格数
         val deltaBySpeed = -v * 2.0f
-
-        // 甩动距离做修正（同方向叠加）
         val deltaByDistance = dragDistance / itemHeight * 0.15f
         val sign = if (deltaBySpeed >= 0) 1f else -1f
 
@@ -181,6 +185,10 @@ class WheelPicker @JvmOverloads constructor(
     }
 
     private fun animateOffsetTo(target: Float) {
+        // 先取消正在跑的动画
+        animRunnable?.let { removeCallbacks(it) }
+        animRunnable = null
+
         val start = currentOffset
         val diff = target - start
         if (abs(diff) < 0.01f) {
@@ -191,7 +199,7 @@ class WheelPicker @JvmOverloads constructor(
         val duration = (300 + (distance * 80).toInt()).coerceIn(300, 1500).toLong()
 
         val startTime = System.currentTimeMillis()
-        post(object : Runnable {
+        val runnable = object : Runnable {
             override fun run() {
                 val elapsed = System.currentTimeMillis() - startTime
                 val t = min(1f, elapsed / duration.toFloat())
@@ -202,9 +210,12 @@ class WheelPicker @JvmOverloads constructor(
                     post(this)
                 } else {
                     applyFinalOffset(target)
+                    animRunnable = null
                 }
             }
-        })
+        }
+        animRunnable = runnable
+        post(runnable)
     }
 
     private fun applyFinalOffset(target: Float) {
@@ -233,5 +244,11 @@ class WheelPicker @JvmOverloads constructor(
         }
         currentOffset = 0f
         invalidate()
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        animRunnable?.let { removeCallbacks(it) }
+        animRunnable = null
     }
 }
