@@ -59,8 +59,8 @@ class WheelPicker @JvmOverloads constructor(
             ta.recycle()
         }
         if (visibleCount % 2 == 0) visibleCount += 1
-        // 提高触发甩动的门槛，只有真正快甩才触发惯性
-        minFlingVelocity = (ViewConfiguration.get(context).scaledMinimumFlingVelocity * 2.5f).toInt()
+        // 门槛提高到系统值 × 4，只有真正快甩才触发惯性
+        minFlingVelocity = (ViewConfiguration.get(context).scaledMinimumFlingVelocity * 4.0f).toInt()
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -84,7 +84,6 @@ class WheelPicker @JvmOverloads constructor(
         super.onDraw(canvas)
         val centerY = height / 2f
 
-        // 根据当前偏移，算出屏幕范围内需要的所有整数 k
         val minK = floor(((0f - centerY) / itemHeight - currentOffset).toDouble()).toInt() - 1
         val maxK = ceil(((height - centerY) / itemHeight - currentOffset).toDouble()).toInt() + 1
 
@@ -165,9 +164,9 @@ class WheelPicker @JvmOverloads constructor(
     }
 
     private fun fling(v: Float) {
-        // 系数 1.2f，单次最多 4 格，降低灵敏度
-        var delta = v * 1.2f
-        delta = delta.coerceIn(-4f, 4f)
+        // 系数 0.6f，单次最多 3 格
+        var delta = v * 0.6f
+        delta = delta.coerceIn(-3f, 3f)
         val target = Math.round(currentOffset + delta).toFloat()
         animateOffsetTo(target)
     }
@@ -179,16 +178,15 @@ class WheelPicker @JvmOverloads constructor(
             applyFinalOffset(target)
             return
         }
-        // 时长随距离动态增长，带来明显减速感
+        // 时长 300~800ms，越长越"重"
         val distance = abs(diff)
-        val duration = (200 + (distance * 60).toInt()).coerceIn(200, 600).toLong()
+        val duration = (300 + (distance * 100).toInt()).coerceIn(300, 800).toLong()
 
         val startTime = System.currentTimeMillis()
         post(object : Runnable {
             override fun run() {
                 val elapsed = System.currentTimeMillis() - startTime
                 val t = min(1f, elapsed / duration.toFloat())
-                // 三次缓出，减速感更强
                 val eased = 1 - (1 - t) * (1 - t) * (1 - t)
                 currentOffset = start + diff * eased
                 invalidate()
