@@ -46,7 +46,6 @@ class WheelPicker @JvmOverloads constructor(
     // 震动相关
     private var vibrator: Vibrator? = null
     private var lastRoundedOffset = 0
-    private val vibratedValues = mutableSetOf<Int>()
 
     var onValueChangedListener: ((Int) -> Unit)? = null
 
@@ -145,9 +144,8 @@ class WheelPicker @JvmOverloads constructor(
                 animRunnable = null
                 applyFinalOffset(currentOffset)
 
-                // 开始新一次滚动，重置震动记录
-                vibratedValues.clear()
-                lastRoundedOffset = 0
+                // 新一次滚动：重置震动锚点
+                lastRoundedOffset = Math.round(currentOffset)
 
                 parent?.requestDisallowInterceptTouchEvent(true)
                 lastY = event.y
@@ -160,7 +158,6 @@ class WheelPicker @JvmOverloads constructor(
                 currentOffset += dy / itemHeight
                 dragDistance += abs(dy)
 
-                // 检查是否跨过一格
                 checkVibration()
 
                 invalidate()
@@ -184,21 +181,12 @@ class WheelPicker @JvmOverloads constructor(
         return super.onTouchEvent(event)
     }
 
-    /** 检查是否跨过一格，跨过就震动；同一个值本次滚动只震一次 */
+    /** 只要 currentOffset 的取整值变了，就震动一次 */
     private fun checkVibration() {
         val rounded = Math.round(currentOffset)
         if (rounded == lastRoundedOffset) return
-
         lastRoundedOffset = rounded
-
-        // 中间显示的整数值
-        val centeredRaw = value - rounded
-        val centeredValue = normalizeValue(centeredRaw) ?: return
-
-        if (!vibratedValues.contains(centeredValue)) {
-            vibratedValues.add(centeredValue)
-            vibrate()
-        }
+        vibrate()
     }
 
     private fun vibrate() {
@@ -206,10 +194,10 @@ class WheelPicker @JvmOverloads constructor(
             val vb = vibrator ?: return
             if (!vb.hasVibrator()) return
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vb.vibrate(VibrationEffect.createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE))
+                vb.vibrate(VibrationEffect.createOneShot(10, VibrationEffect.DEFAULT_AMPLITUDE))
             } else {
                 @Suppress("DEPRECATION")
-                vb.vibrate(20)
+                vb.vibrate(10)
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -254,7 +242,6 @@ class WheelPicker @JvmOverloads constructor(
                 val eased = 1 - (1 - t) * (1 - t) * (1 - t)
                 currentOffset = start + diff * eased
 
-                // 动画过程中也检查震动，让惯性甩动时持续震
                 checkVibration()
 
                 invalidate()
@@ -271,6 +258,9 @@ class WheelPicker @JvmOverloads constructor(
     }
 
     private fun applyFinalOffset(target: Float) {
+        // 收尾前把最后跨的那格检查掉
+        checkVibration()
+
         val delta = -Math.round(target)
         currentOffset = 0f
         if (delta != 0) {
