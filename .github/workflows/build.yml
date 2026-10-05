@@ -38,6 +38,7 @@ jobs:
         run: |
           VERSION=$(grep 'versionName' app/build.gradle.kts | head -1 | sed -E 's/.*"([^"]+)".*/\1/')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Detected version: $VERSION"
 
       - name: Rename APK
         run: |
@@ -50,9 +51,21 @@ jobs:
           name: countdown15-v${{ steps.ver.outputs.version }}
           path: out/countdown15-v${{ steps.ver.outputs.version }}.apk
 
+      - name: Check if release already exists for this version
+        id: check
+        run: |
+          if gh release list --repo ${{ github.repository }} | grep -q "v${{ steps.ver.outputs.version }}"; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create Release and upload APK
+        if: steps.check.outputs.exists == 'false'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.ver.outputs.version }}-${{ github.run_number }}
-          name: v${{ steps.ver.outputs.version }} (build ${{ github.run_number }})
+          tag_name: v${{ steps.ver.outputs.version }}
+          name: v${{ steps.ver.outputs.version }}
           files: out/countdown15-v${{ steps.ver.outputs.version }}.apk
