@@ -164,9 +164,9 @@ class WheelPicker @JvmOverloads constructor(
     }
 
     private fun fling(v: Float) {
-        // 系数 0.6f，单次最多 3 格
-        var delta = -v * 0.6f
-        delta = delta.coerceIn(-3f, 3f)
+        // 速度 → 格数，系数 2.0f；上限 ±25f 约一圈多
+        var delta = -v * 2.0f
+        delta = delta.coerceIn(-25f, 25f)
         val target = Math.round(currentOffset + delta).toFloat()
         animateOffsetTo(target)
     }
@@ -178,15 +178,16 @@ class WheelPicker @JvmOverloads constructor(
             applyFinalOffset(target)
             return
         }
-        // 时长 300~800ms，越长越"重"
+        // 时长 300ms 起，距离越远越久，上限 1500ms
         val distance = abs(diff)
-        val duration = (300 + (distance * 100).toInt()).coerceIn(300, 800).toLong()
+        val duration = (300 + (distance * 80).toInt()).coerceIn(300, 1500).toLong()
 
         val startTime = System.currentTimeMillis()
         post(object : Runnable {
             override fun run() {
                 val elapsed = System.currentTimeMillis() - startTime
                 val t = min(1f, elapsed / duration.toFloat())
+                // 三次缓出，减速感强
                 val eased = 1 - (1 - t) * (1 - t) * (1 - t)
                 currentOffset = start + diff * eased
                 invalidate()
