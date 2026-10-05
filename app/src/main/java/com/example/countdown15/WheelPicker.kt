@@ -4,6 +4,9 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.VelocityTracker
@@ -40,6 +43,11 @@ class WheelPicker @JvmOverloads constructor(
 
     private var animRunnable: Runnable? = null
 
+    // 震动相关
+    private var vibrator: Vibrator? = null
+    private var lastRoundedOffset = 0
+    private val vibratedValues = mutableSetOf<Int>()
+
     var onValueChangedListener: ((Int) -> Unit)? = null
 
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -50,6 +58,8 @@ class WheelPicker @JvmOverloads constructor(
     init {
         isClickable = true
         isFocusable = true
+
+        vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
 
         if (attrs != null) {
             val ta = context.obtainStyledAttributes(attrs, R.styleable.WheelPicker)
@@ -131,10 +141,13 @@ class WheelPicker @JvmOverloads constructor(
 
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-                // 关键：按下瞬间取消正在跑的动画，并把当前偏移立即吸收进 value
                 animRunnable?.let { removeCallbacks(it) }
                 animRunnable = null
                 applyFinalOffset(currentOffset)
+
+                // 开始新一次滚动，重置震动记录
+                vibratedValues.clear()
+                lastRoundedOffset = 0
 
                 parent?.requestDisallowInterceptTouchEvent(true)
                 lastY = event.y
@@ -146,6 +159,10 @@ class WheelPicker @JvmOverloads constructor(
                 lastY = event.y
                 currentOffset += dy / itemHeight
                 dragDistance += abs(dy)
+
+                // 检查是否跨过一格
+                checkVibration()
+
                 invalidate()
                 return true
             }
@@ -167,6 +184,38 @@ class WheelPicker @JvmOverloads constructor(
         return super.onTouchEvent(event)
     }
 
+    /** 检查是否跨过一格，跨过就震动；同一个值本次滚动只震一次 */
+    private fun checkVibration() {
+        val rounded = Math.round(currentOffset)
+        if (rounded == lastRoundedOffset) return
+
+        lastRoundedOffset = rounded
+
+        // 中间显示的整数值
+        val centeredRaw = value - rounded
+        val centeredValue = normalizeValue(centeredRaw) ?: return
+
+        if (!vibratedValues.contains(centeredValue)) {
+            vibratedValues.add(centeredValue)
+            vibrate()
+        }
+    }
+
+    private fun vibrate() {
+        try {
+            val vb = vibrator ?: return
+            if (!vb.hasVibrator()) return
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vb.vibrate(VibrationEffect.createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE))
+            } else {
+                @Suppress("DEPRECATION")
+                vb.vibrate(20)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
     private fun snapToNearest() {
         val target = Math.round(currentOffset).toFloat()
         animateOffsetTo(target)
@@ -185,7 +234,6 @@ class WheelPicker @JvmOverloads constructor(
     }
 
     private fun animateOffsetTo(target: Float) {
-        // 先取消正在跑的动画
         animRunnable?.let { removeCallbacks(it) }
         animRunnable = null
 
@@ -205,6 +253,10 @@ class WheelPicker @JvmOverloads constructor(
                 val t = min(1f, elapsed / duration.toFloat())
                 val eased = 1 - (1 - t) * (1 - t) * (1 - t)
                 currentOffset = start + diff * eased
+
+                // 动画过程中也检查震动，让惯性甩动时持续震
+                checkVibration()
+
                 invalidate()
                 if (t < 1f) {
                     post(this)
