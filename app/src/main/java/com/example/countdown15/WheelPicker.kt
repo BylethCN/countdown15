@@ -5,7 +5,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
 import android.view.VelocityTracker
 import android.view.View
@@ -68,7 +67,6 @@ class WheelPicker @JvmOverloads constructor(
 
         val width = (90 * resources.displayMetrics.density).toInt()
         var height = (itemHeight * visibleCount).toInt() + paddingTop + paddingBottom
-
         if (height < 100) {
             height = (itemHeight * visibleCount).toInt().coerceAtLeast(300)
         }
@@ -85,8 +83,8 @@ class WheelPicker @JvmOverloads constructor(
         val half = visibleCount / 2
 
         for (i in -half..half) {
-            val pos = currentOffset + i
-            val v = valueFromOffset(pos) ?: continue
+            val valueOffset = i + currentOffset
+            val v = valueAtOffset(valueOffset) ?: continue
             val y = centerY + i * itemHeight
             val dist = abs(i)
             val scale = when (dist) {
@@ -113,8 +111,8 @@ class WheelPicker @JvmOverloads constructor(
         canvas.drawText(text, width / 2f, baseline, textPaint)
     }
 
-    private fun valueFromOffset(pos: Float): Int? {
-        val raw = value + Math.round(pos - currentOffset)
+    private fun valueAtOffset(offset: Float): Int? {
+        val raw = value + Math.round(offset)
         return if (wrapSelectorWheel) {
             val range = maxValue - minValue + 1
             var v = (raw - minValue) % range
@@ -126,8 +124,6 @@ class WheelPicker @JvmOverloads constructor(
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        Log.d("WheelPicker", "touch: ${event.actionMasked}")
-
         if (velocityTracker == null) velocityTracker = VelocityTracker.obtain()
         velocityTracker?.addMovement(event)
 
@@ -140,7 +136,7 @@ class WheelPicker @JvmOverloads constructor(
             MotionEvent.ACTION_MOVE -> {
                 val dy = event.y - lastY
                 lastY = event.y
-                currentOffset += dy / itemHeight
+                currentOffset -= dy / itemHeight
                 invalidate()
                 return true
             }
@@ -199,8 +195,7 @@ class WheelPicker @JvmOverloads constructor(
     }
 
     private fun applyFinalOffset(target: Float) {
-        val intTarget = Math.round(target)
-        val delta = intTarget - Math.round(currentOffset)
+        val delta = Math.round(target)
         currentOffset = 0f
         if (delta != 0) {
             var newValue = value + delta
@@ -210,10 +205,8 @@ class WheelPicker @JvmOverloads constructor(
             } else {
                 newValue = newValue.coerceIn(minValue, maxValue)
             }
-            if (newValue != value) {
-                value = newValue
-                onValueChangedListener?.invoke(value)
-            }
+            value = newValue
+            onValueChangedListener?.invoke(value)
         }
         invalidate()
     }
