@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF">
@@ -22,10 +23,16 @@
         android:orientation="horizontal"
         android:gravity="center_vertical">
 
-        <NumberPicker
+        <com.example.countdown15.WheelPicker
             android:id="@+id/npHour"
-            style="@style/WhiteNumberPicker"
-            android:layout_width="wrap_content" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:wp_minValue="0"
+            app:wp_maxValue="23"
+            app:wp_value="0"
+            app:wp_wrap="true"
+            app:wp_visibleCount="5"
+            app:wp_textSize="56sp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -36,10 +43,16 @@
             android:textStyle="bold"
             android:layout_marginHorizontal="4dp" />
 
-        <NumberPicker
+        <com.example.countdown15.WheelPicker
             android:id="@+id/npMinute"
-            style="@style/WhiteNumberPicker"
-            android:layout_width="wrap_content" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:wp_minValue="0"
+            app:wp_maxValue="59"
+            app:wp_value="0"
+            app:wp_wrap="true"
+            app:wp_visibleCount="5"
+            app:wp_textSize="56sp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -50,10 +63,16 @@
             android:textStyle="bold"
             android:layout_marginHorizontal="4dp" />
 
-        <NumberPicker
+        <com.example.countdown15.WheelPicker
             android:id="@+id/npSecond"
-            style="@style/WhiteNumberPicker"
-            android:layout_width="wrap_content" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:wp_minValue="0"
+            app:wp_maxValue="59"
+            app:wp_value="15"
+            app:wp_wrap="true"
+            app:wp_visibleCount="5"
+            app:wp_textSize="56sp" />
 
     </LinearLayout>
 
