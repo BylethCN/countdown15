@@ -1,10 +1,13 @@
 package com.example.countdown15
 
+import android.graphics.Color
 import android.media.Ringtone
 import android.media.RingtoneManager
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.util.TypedValue
 import android.view.View
+import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.NumberPicker
 import android.widget.TextView
@@ -38,7 +41,7 @@ class MainActivity : AppCompatActivity() {
         npMinute = findViewById(R.id.npMinute)
         npSecond = findViewById(R.id.npSecond)
 
-        // 显示版本号
+        // 版本号
         tvVersion.text = "v" + getAppVersion()
 
         // 初始化滚轮
@@ -61,6 +64,12 @@ class MainActivity : AppCompatActivity() {
         setPickerFormatter(npMinute)
         setPickerFormatter(npSecond)
 
+        // 白色文字、加大字号、去掉上下渐变边界
+        listOf(npHour, npMinute, npSecond).forEach { picker ->
+            picker.setBackgroundColor(Color.TRANSPARENT)
+            customizeNumberPickerText(picker)
+        }
+
         showStartState()
 
         btnStart.setOnClickListener {
@@ -80,7 +89,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /** 读取 app 版本号（从 build.gradle.kts 里取） */
+    /** 通过反射改 NumberPicker 内部 EditText 的颜色和字号 */
+    private fun customizeNumberPickerText(picker: NumberPicker) {
+        try {
+            val f = NumberPicker::class.java.getDeclaredField("mInputText")
+            f.isAccessible = true
+            val et = f.get(picker) as EditText
+            et.setTextColor(Color.BLACK)
+            et.setTextSize(TypedValue.COMPLEX_UNIT_SP, 56f)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
     private fun getAppVersion(): String {
         return try {
             val pInfo = packageManager.getPackageInfo(packageName, 0)
