@@ -86,8 +86,8 @@ class WheelPicker @JvmOverloads constructor(
             val baseY = centerY + i * itemHeight
             val y = baseY + currentOffset * itemHeight
 
-            // 上滑时 currentOffset 变负，中间显示更大的值
-            val displayValue = value - Math.round(currentOffset) + i
+            // 用带阈值的 snapValue 决定显示哪个值
+            val displayValue = value - snapValue(currentOffset) + i
 
             val v = normalizeValue(displayValue) ?: continue
 
@@ -98,6 +98,19 @@ class WheelPicker @JvmOverloads constructor(
 
             drawItem(canvas, v, y, scale, alpha)
         }
+    }
+
+    /**
+     * 带阈值的取整：
+     * 滑过 70% 才切换到下一格，更像行李箱密码锁的手感。
+     */
+    private fun snapValue(x: Float): Int {
+        val sign = if (x >= 0) 1 else -1
+        val absX = abs(x)
+        val intPart = absX.toInt()
+        val frac = absX - intPart
+        val carry = if (frac >= 0.7f) 1 else 0
+        return sign * (intPart + carry)
     }
 
     private fun normalizeValue(raw: Int): Int? {
@@ -193,8 +206,8 @@ class WheelPicker @JvmOverloads constructor(
     }
 
     private fun applyFinalOffset(target: Float) {
-        // 与 onDraw 里 value - round(currentOffset) 保持一致
-        val delta = -Math.round(target)
+        // 与 onDraw 里 value - snapValue(currentOffset) 保持一致
+        val delta = -snapValue(target)
         currentOffset = 0f
         if (delta != 0) {
             var newValue = value + delta
