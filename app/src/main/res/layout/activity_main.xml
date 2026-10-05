@@ -2,7 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000">
+    android:background="#FFFFFF">
 
     <!-- 倒计时数字 -->
     <TextView
@@ -10,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:textColor="#FFFFFF"
+        android:textColor="#000000"
         android:textSize="72sp"
         android:textStyle="bold"
         android:visibility="gone" />
@@ -27,37 +27,37 @@
         <NumberPicker
             android:id="@+id/npHour"
             style="@style/WhiteNumberPicker"
-            android:layout_width="60dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=":"
-            android:textColor="#FFFFFF"
-            android:textSize="32sp"
+            android:textColor="#000000"
+            android:textSize="48sp"
             android:textStyle="bold"
             android:layout_marginHorizontal="4dp" />
 
         <NumberPicker
             android:id="@+id/npMinute"
             style="@style/WhiteNumberPicker"
-            android:layout_width="60dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=":"
-            android:textColor="#FFFFFF"
-            android:textSize="32sp"
+            android:textColor="#000000"
+            android:textSize="48sp"
             android:textStyle="bold"
             android:layout_marginHorizontal="4dp" />
 
         <NumberPicker
             android:id="@+id/npSecond"
             style="@style/WhiteNumberPicker"
-            android:layout_width="60dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
     </LinearLayout>
@@ -110,7 +110,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="12dp"
-        android:textColor="#666666"
+        android:textColor="#999999"
         android:textSize="12sp"
         android:text="" />
 
