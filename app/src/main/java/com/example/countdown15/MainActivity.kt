@@ -5,8 +5,8 @@ import android.media.RingtoneManager
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.widget.Button
+import android.widget.NumberPicker
 import android.widget.TextView
-import android.widget.TimePicker
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
@@ -14,14 +14,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvTimer: TextView
     private lateinit var btnStart: Button
     private lateinit var btnStop: Button
-    private lateinit var timePicker: TimePicker
+    private lateinit var npHour: NumberPicker
+    private lateinit var npMinute: NumberPicker
+    private lateinit var npSecond: NumberPicker
 
     private var timer: CountDownTimer? = null
     private var ringtone: Ringtone? = null
 
     private var isCounting = false
-
-    // 当前设置的总秒数（默认 15 秒）
     private var totalSeconds = 15
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,24 +31,38 @@ class MainActivity : AppCompatActivity() {
         tvTimer = findViewById(R.id.tvTimer)
         btnStart = findViewById(R.id.btnStart)
         btnStop = findViewById(R.id.btnStop)
-        timePicker = findViewById(R.id.timePicker)
+        npHour = findViewById(R.id.npHour)
+        npMinute = findViewById(R.id.npMinute)
+        npSecond = findViewById(R.id.npSecond)
 
-        // 强制显示秒
-        timePicker.setIs24HourView(true)
-        try {
-            timePicker.setHour(0)
-            timePicker.setMinute(0)
-            // 秒在部分系统上要通过反射或 XML 属性支持，这里先设默认
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        // 初始化三个滚轮
+        // 小时：0~99
+        npHour.minValue = 0
+        npHour.maxValue = 99
+        npHour.value = 0
+        npHour.wrapSelectorWheel = true
 
-        // 初始状态：显示时间选择器和开始按钮
+        // 分钟：0~59
+        npMinute.minValue = 0
+        npMinute.maxValue = 59
+        npMinute.value = 0
+        npMinute.wrapSelectorWheel = true
+
+        // 秒：0~59，默认 15
+        npSecond.minValue = 0
+        npSecond.maxValue = 59
+        npSecond.value = 15
+        npSecond.wrapSelectorWheel = true
+
+        // 让数字两位显示
+        setPickerFormatter(npHour)
+        setPickerFormatter(npMinute)
+        setPickerFormatter(npSecond)
+
         showStartState()
 
         btnStart.setOnClickListener {
-            // 从 TimePicker 读取用户设置的时间
-            totalSeconds = readTimePickerSeconds()
+            totalSeconds = npHour.value * 3600 + npMinute.value * 60 + npSecond.value
             if (totalSeconds <= 0) totalSeconds = 1
             startCountdown()
         }
@@ -65,31 +79,24 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /** 从 TimePicker 读取时、分、秒，换算成总秒数 */
-    private fun readTimePickerSeconds(): Int {
-        val hour = timePicker.hour
-        val minute = timePicker.minute
-        val second = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            timePicker.second
-        } else {
-            0
-        }
-        return hour * 3600 + minute * 60 + second
+    /** 让滚轮数字显示成 00、01 这种两位格式 */
+    private fun setPickerFormatter(picker: NumberPicker) {
+        picker.setFormatter { value -> String.format("%02d", value) }
     }
 
-    /** 初始 / 停止后：显示时间选择器和开始按钮 */
+    /** 初始 / 停止后：显示时间选择和开始按钮 */
     private fun showStartState() {
         isCounting = false
         tvTimer.visibility = TextView.GONE
         btnStop.visibility = Button.GONE
-        timePicker.visibility = TimePicker.VISIBLE
+        findViewById<android.view.View>(R.id.timePickerLayout).visibility = android.view.View.VISIBLE
         btnStart.visibility = Button.VISIBLE
     }
 
     /** 倒计时中：只显示数字 */
     private fun showCountingState() {
         isCounting = true
-        timePicker.visibility = TimePicker.GONE
+        findViewById<android.view.View>(R.id.timePickerLayout).visibility = android.view.View.GONE
         btnStart.visibility = Button.GONE
         btnStop.visibility = Button.GONE
         tvTimer.visibility = TextView.VISIBLE
@@ -98,7 +105,7 @@ class MainActivity : AppCompatActivity() {
     /** 响铃中：只显示停止按钮 */
     private fun showRingingState() {
         isCounting = false
-        timePicker.visibility = TimePicker.GONE
+        findViewById<android.view.View>(R.id.timePickerLayout).visibility = android.view.View.GONE
         tvTimer.visibility = TextView.GONE
         btnStart.visibility = Button.GONE
         btnStop.visibility = Button.VISIBLE
@@ -106,7 +113,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun startCountdown() {
         stopRingtone()
-
         timer?.cancel()
         showCountingState()
 
@@ -126,7 +132,6 @@ class MainActivity : AppCompatActivity() {
         }.start()
     }
 
-    /** 把秒数格式化成 时:分:秒 */
     private fun formatSeconds(total: Int): String {
         val h = total / 3600
         val m = (total % 3600) / 60
