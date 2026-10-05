@@ -165,7 +165,7 @@ class WheelPicker @JvmOverloads constructor(
 
     private fun fling(v: Float) {
         // 系数 0.6f，单次最多 3 格
-        var delta = v * 0.6f
+        var delta = -v * 0.6f
         delta = delta.coerceIn(-3f, 3f)
         val target = Math.round(currentOffset + delta).toFloat()
         animateOffsetTo(target)
