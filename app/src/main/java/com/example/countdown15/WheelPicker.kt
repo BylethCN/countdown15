@@ -32,7 +32,6 @@ class WheelPicker @JvmOverloads constructor(
     private var currentOffset = 0f
 
     private var lastY = 0f
-    private var isDragging = false
     private var velocityTracker: VelocityTracker? = null
     private var minFlingVelocity = 0
 
@@ -41,10 +40,12 @@ class WheelPicker @JvmOverloads constructor(
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         textAlign = Paint.Align.CENTER
         color = Color.BLACK
-        textSize = this@WheelPicker.textSize
     }
 
     init {
+        isClickable = true
+        isFocusable = true
+
         if (attrs != null) {
             val ta = context.obtainStyledAttributes(attrs, R.styleable.WheelPicker)
             minValue = ta.getInt(R.styleable.WheelPicker_wp_minValue, minValue)
@@ -53,7 +54,6 @@ class WheelPicker @JvmOverloads constructor(
             wrapSelectorWheel = ta.getBoolean(R.styleable.WheelPicker_wp_wrap, wrapSelectorWheel)
             visibleCount = ta.getInt(R.styleable.WheelPicker_wp_visibleCount, visibleCount)
             textSize = ta.getDimension(R.styleable.WheelPicker_wp_textSize, textSize)
-            textPaint.textSize = textSize
             ta.recycle()
         }
         if (visibleCount % 2 == 0) visibleCount += 1
@@ -61,9 +61,12 @@ class WheelPicker @JvmOverloads constructor(
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        textPaint.textSize = textSize
+        val fm = textPaint.fontMetrics
+        itemHeight = (fm.descent - fm.ascent) * 1.4f
+
         val width = suggestedMinimumWidth + paddingLeft + paddingRight +
                 (textPaint.measureText("00") * 2).toInt()
-        itemHeight = textPaint.fontMetrics.let { it.descent - it.ascent } * 1.6f
         val height = (itemHeight * visibleCount).toInt() + paddingTop + paddingBottom
         setMeasuredDimension(
             resolveSize(width, widthMeasureSpec),
@@ -80,25 +83,31 @@ class WheelPicker @JvmOverloads constructor(
             val pos = currentOffset + i
             val v = valueFromOffset(pos) ?: continue
             val y = centerY + i * itemHeight
-            drawItem(canvas, v, y, i)
+            val dist = abs(i)
+            val scale = when (dist) {
+                0 -> 1.0f
+                1 -> 0.75f
+                else -> 0.55f
+            }
+            drawItem(canvas, v, y, scale, dist)
         }
     }
 
-    private fun drawItem(canvas: Canvas, v: Int, y: Float, rowIndex: Int) {
+    private fun drawItem(canvas: Canvas, v: Int, y: Float, scale: Float, dist: Int) {
         val text = String.format("%02d", v)
-        val dist = abs(rowIndex)
         val alpha = when (dist) {
             0 -> 255
-            1 -> 140
-            else -> 70
+            1 -> 160
+            else -> 90
         }
+        textPaint.textSize = textSize * scale
         textPaint.color = Color.argb(alpha, 0, 0, 0)
+
         val fm = textPaint.fontMetrics
         val baseline = y - (fm.ascent + fm.descent) / 2
         canvas.drawText(text, width / 2f, baseline, textPaint)
     }
 
-    /** 给定偏移位置（相对当前 value 的行数），返回对应值 */
     private fun valueFromOffset(pos: Float): Int? {
         val raw = value + Math.round(pos - currentOffset)
         return if (wrapSelectorWheel) {
@@ -119,7 +128,6 @@ class WheelPicker @JvmOverloads constructor(
             MotionEvent.ACTION_DOWN -> {
                 parent?.requestDisallowInterceptTouchEvent(true)
                 lastY = event.y
-                isDragging = true
                 return true
             }
             MotionEvent.ACTION_MOVE -> {
@@ -130,7 +138,6 @@ class WheelPicker @JvmOverloads constructor(
                 return true
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                isDragging = false
                 parent?.requestDisallowInterceptTouchEvent(false)
                 velocityTracker?.computeCurrentVelocity(1000)
                 val vy = velocityTracker?.yVelocity ?: 0f
