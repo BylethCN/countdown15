@@ -4,7 +4,8 @@ import android.media.Ringtone
 import android.media.RingtoneManager
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.widget.Button
+import android.view.View
+import android.widget.FrameLayout
 import android.widget.NumberPicker
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -12,8 +13,9 @@ import androidx.appcompat.app.AppCompatActivity
 class MainActivity : AppCompatActivity() {
 
     private lateinit var tvTimer: TextView
-    private lateinit var btnStart: Button
-    private lateinit var btnStop: Button
+    private lateinit var tvVersion: TextView
+    private lateinit var btnStart: FrameLayout
+    private lateinit var btnStop: FrameLayout
     private lateinit var npHour: NumberPicker
     private lateinit var npMinute: NumberPicker
     private lateinit var npSecond: NumberPicker
@@ -29,32 +31,32 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         tvTimer = findViewById(R.id.tvTimer)
+        tvVersion = findViewById(R.id.tvVersion)
         btnStart = findViewById(R.id.btnStart)
         btnStop = findViewById(R.id.btnStop)
         npHour = findViewById(R.id.npHour)
         npMinute = findViewById(R.id.npMinute)
         npSecond = findViewById(R.id.npSecond)
 
-        // 初始化三个滚轮
-        // 小时：0~99
+        // 显示版本号
+        tvVersion.text = "v" + getAppVersion()
+
+        // 初始化滚轮
         npHour.minValue = 0
         npHour.maxValue = 99
         npHour.value = 0
         npHour.wrapSelectorWheel = true
 
-        // 分钟：0~59
         npMinute.minValue = 0
         npMinute.maxValue = 59
         npMinute.value = 0
         npMinute.wrapSelectorWheel = true
 
-        // 秒：0~59，默认 15
         npSecond.minValue = 0
         npSecond.maxValue = 59
         npSecond.value = 15
         npSecond.wrapSelectorWheel = true
 
-        // 让数字两位显示
         setPickerFormatter(npHour)
         setPickerFormatter(npMinute)
         setPickerFormatter(npSecond)
@@ -71,44 +73,49 @@ class MainActivity : AppCompatActivity() {
             stopRingtoneAndReset()
         }
 
-        // 点屏幕任意位置：只有倒计时中才重新计时
-        findViewById<android.view.View>(android.R.id.content).setOnClickListener {
+        findViewById<View>(android.R.id.content).setOnClickListener {
             if (isCounting) {
                 startCountdown()
             }
         }
     }
 
-    /** 让滚轮数字显示成 00、01 这种两位格式 */
+    /** 读取 app 版本号（从 build.gradle.kts 里取） */
+    private fun getAppVersion(): String {
+        return try {
+            val pInfo = packageManager.getPackageInfo(packageName, 0)
+            pInfo.versionName ?: "0.0.1"
+        } catch (e: Exception) {
+            "0.0.1"
+        }
+    }
+
     private fun setPickerFormatter(picker: NumberPicker) {
         picker.setFormatter { value -> String.format("%02d", value) }
     }
 
-    /** 初始 / 停止后：显示时间选择和开始按钮 */
     private fun showStartState() {
         isCounting = false
         tvTimer.visibility = TextView.GONE
-        btnStop.visibility = Button.GONE
-        findViewById<android.view.View>(R.id.timePickerLayout).visibility = android.view.View.VISIBLE
-        btnStart.visibility = Button.VISIBLE
+        findViewById<View>(R.id.timePickerLayout).visibility = View.VISIBLE
+        btnStart.visibility = View.VISIBLE
+        btnStop.visibility = View.GONE
     }
 
-    /** 倒计时中：只显示数字 */
     private fun showCountingState() {
         isCounting = true
-        findViewById<android.view.View>(R.id.timePickerLayout).visibility = android.view.View.GONE
-        btnStart.visibility = Button.GONE
-        btnStop.visibility = Button.GONE
+        findViewById<View>(R.id.timePickerLayout).visibility = View.GONE
+        btnStart.visibility = View.GONE
+        btnStop.visibility = View.GONE
         tvTimer.visibility = TextView.VISIBLE
     }
 
-    /** 响铃中：只显示停止按钮 */
     private fun showRingingState() {
         isCounting = false
-        findViewById<android.view.View>(R.id.timePickerLayout).visibility = android.view.View.GONE
+        findViewById<View>(R.id.timePickerLayout).visibility = View.GONE
         tvTimer.visibility = TextView.GONE
-        btnStart.visibility = Button.GONE
-        btnStop.visibility = Button.VISIBLE
+        btnStart.visibility = View.GONE
+        btnStop.visibility = View.VISIBLE
     }
 
     private fun startCountdown() {
