@@ -86,18 +86,31 @@ class WheelPicker @JvmOverloads constructor(
             val baseY = centerY + i * itemHeight
             val y = baseY + currentOffset * itemHeight
 
-            val valueOffset = (i - currentOffset).toFloat()
-            val v = valueAtOffset(valueOffset) ?: continue
+            // 屏幕第 i 行显示的值：
+            // 中间行 i=0 显示 value + round(-currentOffset)
+            // 上面行 i=-1 显示 value + round(-currentOffset) + 1
+            // 下面行 i=1 显示 value + round(-currentOffset) - 1
+            val displayValue = value - Math.round(currentOffset) + (-i)
+
+            val v = normalizeValue(displayValue) ?: continue
 
             val distFromCenter = abs(y - centerY) / itemHeight
-
-            // 线性插值：dist = 0 → scale 1.0 / alpha 255
-            //          dist = 2 → scale 0.55 / alpha 60
             val t = (distFromCenter / 2f).coerceIn(0f, 1f)
             val scale = 1.0f - t * 0.45f
             val alpha = (255 - t * 195f).toInt()
 
             drawItem(canvas, v, y, scale, alpha)
+        }
+    }
+
+    private fun normalizeValue(raw: Int): Int? {
+        return if (wrapSelectorWheel) {
+            val range = maxValue - minValue + 1
+            var v = (raw - minValue) % range
+            if (v < 0) v += range
+            minValue + v
+        } else {
+            if (raw < minValue || raw > maxValue) null else raw
         }
     }
 
@@ -109,18 +122,6 @@ class WheelPicker @JvmOverloads constructor(
         val fm = textPaint.fontMetrics
         val baseline = y - (fm.ascent + fm.descent) / 2
         canvas.drawText(text, width / 2f, baseline, textPaint)
-    }
-
-    private fun valueAtOffset(offset: Float): Int? {
-        val raw = value + Math.round(offset)
-        return if (wrapSelectorWheel) {
-            val range = maxValue - minValue + 1
-            var v = (raw - minValue) % range
-            if (v < 0) v += range
-            minValue + v
-        } else {
-            if (raw < minValue || raw > maxValue) null else raw
-        }
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -195,6 +196,7 @@ class WheelPicker @JvmOverloads constructor(
     }
 
     private fun applyFinalOffset(target: Float) {
+        // 松手吸附时，实际变化量 = -round(target)
         val delta = -Math.round(target)
         currentOffset = 0f
         if (delta != 0) {
