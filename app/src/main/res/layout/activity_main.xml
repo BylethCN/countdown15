@@ -28,7 +28,6 @@
             android:id="@+id/npHour"
             style="@style/WhiteNumberPicker"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -43,7 +42,6 @@
             android:id="@+id/npMinute"
             style="@style/WhiteNumberPicker"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -58,7 +56,6 @@
             android:id="@+id/npSecond"
             style="@style/WhiteNumberPicker"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
 
     </LinearLayout>
 
