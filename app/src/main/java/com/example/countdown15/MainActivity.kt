@@ -81,11 +81,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showCountingState() {
-        isCounting = true
-        findViewById<View>(R.id.timePickerLayout).visibility = View.GONE
-        btnStart.visibility = View.GONE
-        btnStop.visibility = View.GONE
-        tvTimer.visibility = TextView.VISIBLE
+    isCounting = true
+    findViewById<View>(R.id.timePickerLayout).visibility = View.GONE
+    btnStart.visibility = View.GONE
+    btnStop.visibility = View.VISIBLE   // 倒计时中显示停止按钮
+    tvTimer.visibility = TextView.VISIBLE
     }
 
     private fun showRingingState() {
