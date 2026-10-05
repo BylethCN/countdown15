@@ -10,6 +10,8 @@ import android.view.VelocityTracker
 import android.view.View
 import android.view.ViewConfiguration
 import kotlin.math.abs
+import kotlin.math.ceil
+import kotlin.math.floor
 import kotlin.math.min
 
 class WheelPicker @JvmOverloads constructor(
@@ -80,18 +82,17 @@ class WheelPicker @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         val centerY = height / 2f
-        val half = visibleCount / 2
 
-        // 多画两格，避免滑动中边缘露出空白
-        for (k in (-half - 2)..(half + 2)) {
-            // 屏幕位置：随 currentOffset 连续移动
+        // 根据当前偏移，算出屏幕范围内需要的所有整数 k
+        val minK = floor(((0f - centerY) / itemHeight - currentOffset).toDouble()).toInt() - 1
+        val maxK = ceil(((height - centerY) / itemHeight - currentOffset).toDouble()).toInt() + 1
+
+        for (k in minK..maxK) {
             val y = centerY + (k + currentOffset) * itemHeight
 
-            // 值：中间 k=0 显示 value，上面 k 小显示更小的值
             val displayValue = value + k
             val v = normalizeValue(displayValue) ?: continue
 
-            // 离中心的距离决定字号和透明度
             val distFromCenter = abs(k + currentOffset)
             val t = (distFromCenter / 2f).coerceIn(0f, 1f)
             val scale = 1.0f - t * 0.45f
@@ -194,8 +195,6 @@ class WheelPicker @JvmOverloads constructor(
     }
 
     private fun applyFinalOffset(target: Float) {
-        // 与 onDraw 的 value + k 保持一致：
-        // 上滑 currentOffset 变负 → 中间显示 value + 1 → value 应该 +1
         val delta = -Math.round(target)
         currentOffset = 0f
         if (delta != 0) {
