@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,8 +33,26 @@ jobs:
       - name: Build Debug APK
         run: gradle assembleDebug --no-daemon
 
-      - name: Upload APK
+      - name: Read version from build.gradle.kts
+        id: ver
+        run: |
+          VERSION=$(grep 'versionName' app/build.gradle.kts | head -1 | sed -E 's/.*"([^"]+)".*/\1/')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Rename APK
+        run: |
+          mkdir -p out
+          cp app/build/outputs/apk/debug/app-debug.apk "out/countdown15-v${{ steps.ver.outputs.version }}.apk"
+
+      - name: Upload as artifact (zip)
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: countdown15-v${{ steps.ver.outputs.version }}
+          path: out/countdown15-v${{ steps.ver.outputs.version }}.apk
+
+      - name: Create Release and upload APK
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.ver.outputs.version }}-${{ github.run_number }}
+          name: v${{ steps.ver.outputs.version }} (build ${{ github.run_number }})
+          files: out/countdown15-v${{ steps.ver.outputs.version }}.apk
