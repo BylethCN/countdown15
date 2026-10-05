@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -17,6 +17,11 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+
+      - name: Restore debug keystore
+        run: |
+          mkdir -p $HOME/.android
+          echo "${{ secrets.DEBUG_KEYSTORE_BASE64 }}" | base64 -d > $HOME/.android/debug.keystore
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
