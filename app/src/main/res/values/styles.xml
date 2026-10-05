@@ -3,6 +3,6 @@
     <style name="WhiteNumberPicker">
         <item name="android:textColorPrimary">#000000</item>
         <item name="android:textColorSecondary">#CCCCCC</item>
-        <item name="android:textSize">48sp</item>
+        <item name="android:textSize">56sp</item>
     </style>
 </resources>
