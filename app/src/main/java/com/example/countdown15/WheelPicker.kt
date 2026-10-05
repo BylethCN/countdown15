@@ -83,26 +83,34 @@ class WheelPicker @JvmOverloads constructor(
         val half = visibleCount / 2
 
         for (i in -half..half) {
-            val valueOffset = i + currentOffset
+            // 基准位置：屏幕第 i 行
+            val baseY = centerY + i * itemHeight
+            // 加上滑动偏移，让数字跟手滚动
+            val y = baseY + currentOffset * itemHeight
+
+            // 该行显示哪个值
+            val valueOffset = (i - currentOffset).toFloat()
             val v = valueAtOffset(valueOffset) ?: continue
-            val y = centerY + i * itemHeight
-            val dist = abs(i)
-            val scale = when (dist) {
-                0 -> 1.0f
-                1 -> 0.75f
+
+            // 按离中心的距离决定字号和透明度
+            val distFromCenter = abs(y - centerY) / itemHeight
+            val scale = when {
+                distFromCenter < 0.5f -> 1.0f
+                distFromCenter < 1.5f -> 0.75f
                 else -> 0.55f
             }
-            drawItem(canvas, v, y, scale, dist)
+            val alpha = when {
+                distFromCenter < 0.5f -> 255
+                distFromCenter < 1.5f -> 120
+                else -> 60
+            }
+
+            drawItem(canvas, v, y, scale, alpha)
         }
     }
 
-    private fun drawItem(canvas: Canvas, v: Int, y: Float, scale: Float, dist: Int) {
+    private fun drawItem(canvas: Canvas, v: Int, y: Float, scale: Float, alpha: Int) {
         val text = String.format("%02d", v)
-        val alpha = when (dist) {
-            0 -> 255
-            1 -> 120
-            else -> 90
-        }
         textPaint.textSize = textSize * scale
         textPaint.color = Color.argb(alpha, 0, 0, 0)
 
