@@ -65,8 +65,8 @@ class WheelPicker @JvmOverloads constructor(
         val fm = textPaint.fontMetrics
         itemHeight = (fm.descent - fm.ascent) * 1.4f
 
-        val width = suggestedMinimumWidth + paddingLeft + paddingRight +
-                (textPaint.measureText("00") * 4).toInt()
+        // 宽度直接用 90dp 转成像素，保证够宽能按到
+        val width = (90 * resources.displayMetrics.density).toInt()
         val height = (itemHeight * visibleCount).toInt() + paddingTop + paddingBottom
         setMeasuredDimension(
             resolveSize(width, widthMeasureSpec),

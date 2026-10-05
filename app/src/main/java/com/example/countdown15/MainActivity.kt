@@ -4,7 +4,6 @@ import android.media.Ringtone
 import android.media.RingtoneManager
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
@@ -56,12 +55,12 @@ class MainActivity : AppCompatActivity() {
             stopRingtoneAndReset()
         }
 
-        // 关键：用 OnTouchListener 返回 false，让触摸事件继续传给 WheelPicker
-        findViewById<View>(android.R.id.content).setOnTouchListener { _, event ->
-            if (isCounting && event.actionMasked == MotionEvent.ACTION_DOWN) {
+        // 只有倒计时数字显示时，点它才重新计时
+        // 这样不会拦截滚轮的触摸事件
+        tvTimer.setOnClickListener {
+            if (isCounting) {
                 startCountdown()
             }
-            false
         }
     }
 
