@@ -65,9 +65,14 @@ class WheelPicker @JvmOverloads constructor(
         val fm = textPaint.fontMetrics
         itemHeight = (fm.descent - fm.ascent) * 1.4f
 
-        // 宽度直接用 90dp 转成像素，保证够宽能按到
         val width = (90 * resources.displayMetrics.density).toInt()
-        val height = (itemHeight * visibleCount).toInt() + paddingTop + paddingBottom
+        var height = (itemHeight * visibleCount).toInt() + paddingTop + paddingBottom
+
+        // 兜底：如果高度算出异常小，强制给个最小值
+        if (height < 100) {
+            height = (itemHeight * visibleCount).toInt().coerceAtLeast(300)
+        }
+
         setMeasuredDimension(
             resolveSize(width, widthMeasureSpec),
             resolveSize(height, heightMeasureSpec)
@@ -120,7 +125,8 @@ class WheelPicker @JvmOverloads constructor(
         }
     }
 
-    override fun onTouchEvent(event: MotionEvent): Boolean {
+    /** 关键改动：用 dispatchTouchEvent 确保事件一定进来 */
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
         if (velocityTracker == null) velocityTracker = VelocityTracker.obtain()
         velocityTracker?.addMovement(event)
 
@@ -152,7 +158,7 @@ class WheelPicker @JvmOverloads constructor(
                 return true
             }
         }
-        return super.onTouchEvent(event)
+        return true
     }
 
     private fun snapToNearest() {
