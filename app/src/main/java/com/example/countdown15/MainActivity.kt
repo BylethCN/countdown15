@@ -4,6 +4,7 @@ import android.media.Ringtone
 import android.media.RingtoneManager
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
@@ -39,7 +40,6 @@ class MainActivity : AppCompatActivity() {
 
         tvVersion.text = "v" + getAppVersion()
 
-        // 初始值
         npHour.setValue(0)
         npMinute.setValue(0)
         npSecond.setValue(15)
@@ -56,10 +56,12 @@ class MainActivity : AppCompatActivity() {
             stopRingtoneAndReset()
         }
 
-        findViewById<View>(android.R.id.content).setOnClickListener {
-            if (isCounting) {
+        // 关键：用 OnTouchListener 返回 false，让触摸事件继续传给 WheelPicker
+        findViewById<View>(android.R.id.content).setOnTouchListener { _, event ->
+            if (isCounting && event.actionMasked == MotionEvent.ACTION_DOWN) {
                 startCountdown()
             }
+            false
         }
     }
 
