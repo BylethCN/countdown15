@@ -2,7 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#111111">
+    android:background="#000000">
 
     <!-- 倒计时数字 -->
     <TextView
@@ -15,7 +15,7 @@
         android:textStyle="bold"
         android:visibility="gone" />
 
-    <!-- 时间选择器：三个 NumberPicker 横向排列（刚打开时显示） -->
+    <!-- 时间选择器：三个 NumberPicker -->
     <LinearLayout
         android:id="@+id/timePickerLayout"
         android:layout_width="wrap_content"
@@ -26,9 +26,8 @@
 
         <NumberPicker
             android:id="@+id/npHour"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:theme="@style/AppTheme" />
+            android:layout_width="60dp"
+            android:layout_height="wrap_content" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -41,9 +40,8 @@
 
         <NumberPicker
             android:id="@+id/npMinute"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:theme="@style/AppTheme" />
+            android:layout_width="60dp"
+            android:layout_height="wrap_content" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -56,31 +54,61 @@
 
         <NumberPicker
             android:id="@+id/npSecond"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:theme="@style/AppTheme" />
+            android:layout_width="60dp"
+            android:layout_height="wrap_content" />
 
     </LinearLayout>
 
-    <!-- 开始按钮 -->
-    <Button
+    <!-- 开始按钮：圆形 -->
+    <FrameLayout
         android:id="@+id/btnStart"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="88dp"
+        android:layout_height="88dp"
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="80dp"
-        android:text="开始"
-        android:textSize="28sp" />
+        android:background="@drawable/bg_circle_button"
+        android:clickable="true"
+        android:focusable="true">
 
-    <!-- 停止按钮 -->
-    <Button
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_play"
+            android:contentDescription="开始" />
+
+    </FrameLayout>
+
+    <!-- 停止按钮：圆形，中间是方块 -->
+    <FrameLayout
         android:id="@+id/btnStop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="88dp"
+        android:layout_height="88dp"
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="80dp"
-        android:text="停止"
-        android:textSize="28sp"
-        android:visibility="gone" />
+        android:background="@drawable/bg_circle_button"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_stop"
+            android:contentDescription="停止" />
+
+    </FrameLayout>
+
+    <!-- 版本号 -->
+    <TextView
+        android:id="@+id/tvVersion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="12dp"
+        android:textColor="#666666"
+        android:textSize="12sp"
+        android:text="" />
 
 </FrameLayout>
