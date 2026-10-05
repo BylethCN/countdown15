@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="WheelPicker">
+        <attr name="wp_minValue" format="integer" />
+        <attr name="wp_maxValue" format="integer" />
+        <attr name="wp_value" format="integer" />
+        <attr name="wp_wrap" format="boolean" />
+        <attr name="wp_visibleCount" format="integer" />
+        <attr name="wp_textSize" format="dimension" />
+    </declare-styleable>
+</resources>
