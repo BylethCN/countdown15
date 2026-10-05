@@ -66,7 +66,7 @@ class WheelPicker @JvmOverloads constructor(
         itemHeight = (fm.descent - fm.ascent) * 1.4f
 
         val width = suggestedMinimumWidth + paddingLeft + paddingRight +
-                (textPaint.measureText("00") * 2).toInt()
+                (textPaint.measureText("00") * 4).toInt()
         val height = (itemHeight * visibleCount).toInt() + paddingTop + paddingBottom
         setMeasuredDimension(
             resolveSize(width, widthMeasureSpec),
