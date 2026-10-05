@@ -34,6 +34,7 @@ class WheelPicker @JvmOverloads constructor(
     private var currentOffset = 0f
 
     private var lastY = 0f
+    private var dragDistance = 0f
     private var velocityTracker: VelocityTracker? = null
     private var minFlingVelocity = 0
 
@@ -59,7 +60,6 @@ class WheelPicker @JvmOverloads constructor(
             ta.recycle()
         }
         if (visibleCount % 2 == 0) visibleCount += 1
-        // 门槛提高到系统值 × 4，只有真正快甩才触发惯性
         minFlingVelocity = (ViewConfiguration.get(context).scaledMinimumFlingVelocity * 4.0f).toInt()
     }
 
@@ -131,12 +131,14 @@ class WheelPicker @JvmOverloads constructor(
             MotionEvent.ACTION_DOWN -> {
                 parent?.requestDisallowInterceptTouchEvent(true)
                 lastY = event.y
+                dragDistance = 0f
                 return true
             }
             MotionEvent.ACTION_MOVE -> {
                 val dy = event.y - lastY
                 lastY = event.y
                 currentOffset += dy / itemHeight
+                dragDistance += abs(dy)
                 invalidate()
                 return true
             }
@@ -164,9 +166,16 @@ class WheelPicker @JvmOverloads constructor(
     }
 
     private fun fling(v: Float) {
-        // 速度 → 格数，系数 2.0f；上限 ±25f 约一圈多
-        var delta = -v * 2.0f
+        // 速度决定基础格数
+        val deltaBySpeed = -v * 2.0f
+
+        // 甩动距离做修正（同方向叠加）
+        val deltaByDistance = dragDistance / itemHeight * 0.15f
+        val sign = if (deltaBySpeed >= 0) 1f else -1f
+
+        var delta = deltaBySpeed + sign * deltaByDistance
         delta = delta.coerceIn(-25f, 25f)
+
         val target = Math.round(currentOffset + delta).toFloat()
         animateOffsetTo(target)
     }
@@ -178,7 +187,6 @@ class WheelPicker @JvmOverloads constructor(
             applyFinalOffset(target)
             return
         }
-        // 时长 300ms 起，距离越远越久，上限 1500ms
         val distance = abs(diff)
         val duration = (300 + (distance * 80).toInt()).coerceIn(300, 1500).toLong()
 
@@ -187,7 +195,6 @@ class WheelPicker @JvmOverloads constructor(
             override fun run() {
                 val elapsed = System.currentTimeMillis() - startTime
                 val t = min(1f, elapsed / duration.toFloat())
-                // 三次缓出，减速感强
                 val eased = 1 - (1 - t) * (1 - t) * (1 - t)
                 currentOffset = start + diff * eased
                 invalidate()
