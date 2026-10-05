@@ -83,24 +83,23 @@ class WheelPicker @JvmOverloads constructor(
         val half = visibleCount / 2
 
         for (i in -half..half) {
-    val baseY = centerY + i * itemHeight
-    val y = baseY + currentOffset * itemHeight
+            val baseY = centerY + i * itemHeight
+            val y = baseY + currentOffset * itemHeight
 
-    val valueOffset = (i - currentOffset).toFloat()
-    val v = valueAtOffset(valueOffset) ?: continue
+            val valueOffset = (i - currentOffset).toFloat()
+            val v = valueAtOffset(valueOffset) ?: continue
 
-    // 离中心的距离：0 = 在正中，1 = 离一格，2 = 离两格
-    val distFromCenter = abs(y - centerY) / itemHeight
+            val distFromCenter = abs(y - centerY) / itemHeight
 
-    // 连续插值
-    // dist = 0 时 scale = 1.0，dist = 2 时 scale = 0.55，中间线性过渡
-    val scale = 1.0f - (distFromCenter / 2f).coerceIn(0f, 1f) * 0.45f
+            // 线性插值：dist = 0 → scale 1.0 / alpha 255
+            //          dist = 2 → scale 0.55 / alpha 60
+            val t = (distFromCenter / 2f).coerceIn(0f, 1f)
+            val scale = 1.0f - t * 0.45f
+            val alpha = (255 - t * 195f).toInt()
 
-    // dist = 0 时 alpha = 255，dist = 2 时 alpha = 60
-    val alpha = (255 - (distFromCenter / 2f).coerceIn(0f, 1f) * 195f).toInt()
-
-    drawItem(canvas, v, y, scale, alpha)
-}
+            drawItem(canvas, v, y, scale, alpha)
+        }
+    }
 
     private fun drawItem(canvas: Canvas, v: Int, y: Float, scale: Float, alpha: Int) {
         val text = String.format("%02d", v)
