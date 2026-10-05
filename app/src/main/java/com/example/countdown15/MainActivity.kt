@@ -1,7 +1,9 @@
 package com.example.countdown15
 
+import android.media.AudioAttributes
 import android.media.Ringtone
 import android.media.RingtoneManager
+import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.View
@@ -39,6 +41,7 @@ class MainActivity : AppCompatActivity() {
 
         tvVersion.text = "v" + getAppVersion()
 
+        // 默认初始化值：00 : 00 : 15
         npHour.setValue(0)
         npMinute.setValue(0)
         npSecond.setValue(15)
@@ -55,8 +58,8 @@ class MainActivity : AppCompatActivity() {
             stopRingtoneAndReset()
         }
 
-        // 最外层点击：只有倒计时中才重新计时
-        findViewById<View>(R.id.rootLayout).setOnClickListener {
+        // 仅在倒计时进行中，点击中间的数字文本（tvTimer）才重新计时
+        tvTimer.setOnClickListener {
             if (isCounting) {
                 startCountdown()
             }
@@ -74,24 +77,24 @@ class MainActivity : AppCompatActivity() {
 
     private fun showStartState() {
         isCounting = false
-        tvTimer.visibility = TextView.GONE
+        tvTimer.visibility = View.GONE
         findViewById<View>(R.id.timePickerLayout).visibility = View.VISIBLE
         btnStart.visibility = View.VISIBLE
         btnStop.visibility = View.GONE
     }
 
     private fun showCountingState() {
-    isCounting = true
-    findViewById<View>(R.id.timePickerLayout).visibility = View.GONE
-    btnStart.visibility = View.GONE
-    btnStop.visibility = View.VISIBLE   // 倒计时中显示停止按钮
-    tvTimer.visibility = TextView.VISIBLE
+        isCounting = true
+        findViewById<View>(R.id.timePickerLayout).visibility = View.GONE
+        btnStart.visibility = View.GONE
+        btnStop.visibility = View.VISIBLE
+        tvTimer.visibility = View.VISIBLE
     }
 
     private fun showRingingState() {
         isCounting = false
         findViewById<View>(R.id.timePickerLayout).visibility = View.GONE
-        tvTimer.visibility = TextView.GONE
+        tvTimer.visibility = View.GONE
         btnStart.visibility = View.GONE
         btnStop.visibility = View.VISIBLE
     }
@@ -133,7 +136,16 @@ class MainActivity : AppCompatActivity() {
             val uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
                 ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
             ringtone = RingtoneManager.getRingtone(applicationContext, uri)
-            ringtone?.play()
+            ringtone?.let {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    it.isLooping = true
+                }
+                it.audioAttributes = AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_ALARM)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build()
+                it.play()
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -158,6 +170,6 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         timer?.cancel()
-        ringtone?.stop()
+        stopRingtone()
     }
 }
