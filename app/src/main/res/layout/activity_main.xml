@@ -26,6 +26,7 @@
 
         <NumberPicker
             android:id="@+id/npHour"
+            style="@style/WhiteNumberPicker"
             android:layout_width="60dp"
             android:layout_height="wrap_content" />
 
@@ -40,6 +41,7 @@
 
         <NumberPicker
             android:id="@+id/npMinute"
+            style="@style/WhiteNumberPicker"
             android:layout_width="60dp"
             android:layout_height="wrap_content" />
 
@@ -54,6 +56,7 @@
 
         <NumberPicker
             android:id="@+id/npSecond"
+            style="@style/WhiteNumberPicker"
             android:layout_width="60dp"
             android:layout_height="wrap_content" />
 
