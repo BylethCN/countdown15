@@ -100,7 +100,7 @@ class WheelPicker @JvmOverloads constructor(
         val text = String.format("%02d", v)
         val alpha = when (dist) {
             0 -> 255
-            1 -> 160
+            1 -> 120
             else -> 90
         }
         textPaint.textSize = textSize * scale

@@ -4,7 +4,7 @@
     android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#E8E8E8">
+    android:background="#F5F5F5">
 
     <TextView
         android:id="@+id/tvTimer"
@@ -78,7 +78,7 @@
             android:focusable="true"
             app:wp_minValue="0"
             app:wp_maxValue="59"
-            app:wp_value="15"
+            app:wp_value="10"
             app:wp_wrap="true"
             app:wp_visibleCount="5"
             app:wp_textSize="56sp" />
@@ -87,7 +87,7 @@
 
     <FrameLayout
         android:id="@+id/btnStart"
-        android:layout_width="88dp"
+        android:layout_width="160dp"
         android:layout_height="88dp"
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="80dp"
@@ -106,7 +106,7 @@
 
     <FrameLayout
         android:id="@+id/btnStop"
-        android:layout_width="88dp"
+        android:layout_width="160dp"
         android:layout_height="88dp"
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="80dp"
