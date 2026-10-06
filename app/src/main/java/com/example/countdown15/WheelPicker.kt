@@ -60,6 +60,15 @@ class WheelPicker @JvmOverloads constructor(
 
         vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
 
+        // 用 MiSansVF 可变字体
+        try {
+            androidx.core.content.res.ResourcesCompat.getFont(context, R.font.misansvf)?.let {
+                textPaint.typeface = it
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
         if (attrs != null) {
             val ta = context.obtainStyledAttributes(attrs, R.styleable.WheelPicker)
             minValue = ta.getInt(R.styleable.WheelPicker_wp_minValue, minValue)
@@ -77,8 +86,8 @@ class WheelPicker @JvmOverloads constructor(
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         textPaint.textSize = textSize
         val fm = textPaint.fontMetrics
-        // 行高系数 1.0，行距紧凑
-        itemHeight = (fm.descent - fm.ascent) * 1.0f
+        // 行高系数 0.95，字更大、行距紧，接近小米
+        itemHeight = (fm.descent - fm.ascent) * 0.95f
 
         val width = (90 * resources.displayMetrics.density).toInt()
         var height = (itemHeight * visibleCount).toInt() + paddingTop + paddingBottom

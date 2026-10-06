@@ -23,6 +23,7 @@
         android:layout_gravity="center"
         android:orientation="horizontal"
         android:gravity="center_vertical"
+        android:translationY="-50dp"
         android:clipChildren="false"
         android:clipToPadding="false">
 
@@ -37,16 +38,16 @@
             app:wp_value="0"
             app:wp_wrap="true"
             app:wp_visibleCount="5"
-            app:wp_textSize="56sp" />
+            app:wp_textSize="64sp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=":"
             android:textColor="#000000"
-            android:textSize="56sp"
+            android:textSize="64sp"
             android:textStyle="bold"
-            android:layout_marginHorizontal="4dp" />
+            android:layout_marginHorizontal="0dp" />
 
         <com.example.countdown15.WheelPicker
             android:id="@+id/npMinute"
@@ -59,16 +60,16 @@
             app:wp_value="0"
             app:wp_wrap="true"
             app:wp_visibleCount="5"
-            app:wp_textSize="56sp" />
+            app:wp_textSize="64sp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=":"
             android:textColor="#000000"
-            android:textSize="56sp"
+            android:textSize="64sp"
             android:textStyle="bold"
-            android:layout_marginHorizontal="4dp" />
+            android:layout_marginHorizontal="0dp" />
 
         <com.example.countdown15.WheelPicker
             android:id="@+id/npSecond"
@@ -78,10 +79,10 @@
             android:focusable="true"
             app:wp_minValue="0"
             app:wp_maxValue="59"
-            app:wp_value="10"
+            app:wp_value="15"
             app:wp_wrap="true"
             app:wp_visibleCount="5"
-            app:wp_textSize="56sp" />
+            app:wp_textSize="64sp" />
 
     </LinearLayout>
 
