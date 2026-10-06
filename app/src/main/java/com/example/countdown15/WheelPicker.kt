@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Typeface
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
@@ -52,6 +53,7 @@ class WheelPicker @JvmOverloads constructor(
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         textAlign = Paint.Align.CENTER
         color = Color.BLACK
+        typeface = Typeface.create("sans-serif-light", Typeface.NORMAL)
     }
 
     init {
@@ -77,7 +79,8 @@ class WheelPicker @JvmOverloads constructor(
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         textPaint.textSize = textSize
         val fm = textPaint.fontMetrics
-        itemHeight = (fm.descent - fm.ascent) * 1.4f
+        // 行高系数 1.15，行距更紧凑，接近小米
+        itemHeight = (fm.descent - fm.ascent) * 1.15f
 
         val width = (90 * resources.displayMetrics.density).toInt()
         var height = (itemHeight * visibleCount).toInt() + paddingTop + paddingBottom
@@ -243,17 +246,12 @@ class WheelPicker @JvmOverloads constructor(
                 val elapsed = System.currentTimeMillis() - startTime
                 val t = min(1f, elapsed / duration.toFloat())
 
-                // 三段式（按小米实测）：
-                //   0 ~ 0.533    时间走 91.7% 距离（前 22 格）
-                //   0.533 ~ 0.667 时间走 4.1% 距离（倒数第 2 格，约 0.4s）
-                //   0.667 ~ 1    时间走 4.2% 距离（最后 1 格，约 1s）
                 val u = when {
                     t < 0.533f -> (t / 0.533f) * 0.917f
                     t < 0.667f -> 0.917f + ((t - 0.533f) / 0.134f) * 0.041f
                     else -> 0.958f + ((t - 0.667f) / 0.333f) * 0.042f
                 }
 
-                // 统一四次缓出
                 val eased = 1 - (1 - u) * (1 - u) * (1 - u) * (1 - u)
 
                 currentOffset = start + diff * eased
