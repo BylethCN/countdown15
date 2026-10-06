@@ -194,16 +194,16 @@ class WheelPicker @JvmOverloads constructor(
             val vb = vibrator ?: return
             if (!vb.hasVibrator()) return
 
-            // 最小间隔 40ms，甩太快时自动稀疏
+            // 最小间隔 80ms，甩太快时自动稀疏
             val now = System.currentTimeMillis()
-            if (now - lastVibrateTime < 40L) return
+            if (now - lastVibrateTime < 80L) return
             lastVibrateTime = now
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vb.vibrate(VibrationEffect.createOneShot(8, VibrationEffect.DEFAULT_AMPLITUDE))
+                vb.vibrate(VibrationEffect.createOneShot(20, VibrationEffect.DEFAULT_AMPLITUDE))
             } else {
                 @Suppress("DEPRECATION")
-                vb.vibrate(8)
+                vb.vibrate(20)
             }
         } catch (e: Exception) {
             e.printStackTrace()
