@@ -20,10 +20,9 @@
         android:id="@+id/timePickerLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:layout_gravity="top|center_horizontal"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:translationY="-50dp"
         android:clipChildren="false"
         android:clipToPadding="false">
 

@@ -54,19 +54,14 @@ class MainActivity : AppCompatActivity() {
         npMinute.setValue(0)
         npSecond.setValue(15)
 
-        // 动态居中滚轮区域
+        // 滚轮垂直居中于整个屏幕物理分辨率
         val rootView = findViewById<View>(R.id.rootLayout)
         val timePickerLayout = findViewById<View>(R.id.timePickerLayout)
 
         rootView.post {
-            val statusBarHeight = getStatusBarHeight()
-            val navBarHeight = getNavBarHeight()
             val screenHeight = resources.displayMetrics.heightPixels
-
-            val availableHeight = screenHeight - statusBarHeight - navBarHeight
             val pickerHeight = timePickerLayout.height
-
-            val topMargin = statusBarHeight + (availableHeight - pickerHeight) / 2
+            val topMargin = (screenHeight - pickerHeight) / 2
 
             val params = timePickerLayout.layoutParams as FrameLayout.LayoutParams
             params.gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
@@ -91,16 +86,6 @@ class MainActivity : AppCompatActivity() {
                 startCountdown()
             }
         }
-    }
-
-    private fun getStatusBarHeight(): Int {
-        val id = resources.getIdentifier("status_bar_height", "dimen", "android")
-        return if (id > 0) resources.getDimensionPixelSize(id) else 0
-    }
-
-    private fun getNavBarHeight(): Int {
-        val id = resources.getIdentifier("navigation_bar_height", "dimen", "android")
-        return if (id > 0) resources.getDimensionPixelSize(id) else 0
     }
 
     private fun getAppVersion(): String {
