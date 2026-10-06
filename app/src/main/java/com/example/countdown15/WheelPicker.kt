@@ -43,7 +43,6 @@ class WheelPicker @JvmOverloads constructor(
 
     private var animRunnable: Runnable? = null
 
-    // 震动相关
     private var vibrator: Vibrator? = null
     private var lastRoundedOffset = 0
     private var lastVibrateTime = 0L
@@ -181,7 +180,6 @@ class WheelPicker @JvmOverloads constructor(
         return super.onTouchEvent(event)
     }
 
-    /** 只要 currentOffset 的取整值变了，就震动一次 */
     private fun checkVibration() {
         val rounded = Math.round(currentOffset)
         if (rounded == lastRoundedOffset) return
@@ -237,7 +235,6 @@ class WheelPicker @JvmOverloads constructor(
             return
         }
         val distance = abs(diff)
-        // 时长：500ms 起，每格 110ms，上限 3000ms
         val duration = (500 + (distance * 110).toInt()).coerceIn(500, 3000).toLong()
 
         val startTime = System.currentTimeMillis()
@@ -246,14 +243,14 @@ class WheelPicker @JvmOverloads constructor(
                 val elapsed = System.currentTimeMillis() - startTime
                 val t = min(1f, elapsed / duration.toFloat())
 
-                // 三段式：
-                //   0 ~ 0.40    时间走 70% 距离（快）
-                //   0.40 ~ 0.75 时间走 25% 距离（中）
-                //   0.75 ~ 1    时间走 5% 距离（慢，但看得见在动）
+                // 三段式（按小米实测）：
+                //   0 ~ 0.533    时间走 91.7% 距离（前 22 格）
+                //   0.533 ~ 0.667 时间走 4.1% 距离（倒数第 2 格，约 0.4s）
+                //   0.667 ~ 1    时间走 4.2% 距离（最后 1 格，约 1s）
                 val u = when {
-                    t < 0.4f -> (t / 0.4f) * 0.70f
-                    t < 0.75f -> 0.70f + ((t - 0.4f) / 0.35f) * 0.25f
-                    else -> 0.95f + ((t - 0.75f) / 0.25f) * 0.05f
+                    t < 0.533f -> (t / 0.533f) * 0.917f
+                    t < 0.667f -> 0.917f + ((t - 0.533f) / 0.134f) * 0.041f
+                    else -> 0.958f + ((t - 0.667f) / 0.333f) * 0.042f
                 }
 
                 // 统一四次缓出
