@@ -46,6 +46,7 @@ class WheelPicker @JvmOverloads constructor(
     // 震动相关
     private var vibrator: Vibrator? = null
     private var lastRoundedOffset = 0
+    private var lastVibrateTime = 0L
 
     var onValueChangedListener: ((Int) -> Unit)? = null
 
@@ -144,7 +145,6 @@ class WheelPicker @JvmOverloads constructor(
                 animRunnable = null
                 applyFinalOffset(currentOffset)
 
-                // 新一次滚动：重置震动锚点
                 lastRoundedOffset = Math.round(currentOffset)
 
                 parent?.requestDisallowInterceptTouchEvent(true)
@@ -193,11 +193,17 @@ class WheelPicker @JvmOverloads constructor(
         try {
             val vb = vibrator ?: return
             if (!vb.hasVibrator()) return
+
+            // 最小间隔 40ms，甩太快时自动稀疏
+            val now = System.currentTimeMillis()
+            if (now - lastVibrateTime < 40L) return
+            lastVibrateTime = now
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vb.vibrate(VibrationEffect.createOneShot(10, VibrationEffect.DEFAULT_AMPLITUDE))
+                vb.vibrate(VibrationEffect.createOneShot(8, VibrationEffect.DEFAULT_AMPLITUDE))
             } else {
                 @Suppress("DEPRECATION")
-                vb.vibrate(10)
+                vb.vibrate(8)
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -258,7 +264,6 @@ class WheelPicker @JvmOverloads constructor(
     }
 
     private fun applyFinalOffset(target: Float) {
-        // 收尾前把最后跨的那格检查掉
         checkVibration()
 
         val delta = -Math.round(target)
