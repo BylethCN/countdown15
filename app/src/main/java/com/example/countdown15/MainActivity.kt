@@ -113,9 +113,15 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // 右上角菜单：PopupWindow 贴锚点
+        // 右上角菜单
         btnMenu.setOnClickListener {
+            // 遮罩：渐显
+            menuMask.alpha = 0f
             menuMask.visibility = View.VISIBLE
+            menuMask.animate()
+                .alpha(1f)
+                .setDuration(200)
+                .start()
 
             val popupView = layoutInflater.inflate(R.layout.popup_menu, null)
             val popupRoot = popupView.findViewById<LinearLayout>(R.id.popupRoot)
@@ -150,14 +156,33 @@ class MainActivity : AppCompatActivity() {
             }
 
             popup.setOnDismissListener {
-                menuMask.visibility = View.GONE
+                menuMask.animate()
+                    .alpha(0f)
+                    .setDuration(150)
+                    .withEndAction {
+                        menuMask.visibility = View.GONE
+                    }
+                    .start()
             }
 
             menuMask.setOnClickListener {
                 popup.dismiss()
             }
 
-            popup.showAsDropDown(btnMenu, 0, dp(8f))
+            popup.showAsDropDown(btnMenu, -dp(40f), dp(8f))
+
+            popupView.post {
+                popupView.pivotX = popupView.width.toFloat()
+                popupView.pivotY = 0f
+                popupView.scaleX = 0f
+                popupView.scaleY = 0f
+                popupView.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(200)
+                    .setInterpolator(android.view.animation.DecelerateInterpolator())
+                    .start()
+            }
         }
     }
 
