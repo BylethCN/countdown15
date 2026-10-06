@@ -12,7 +12,6 @@ import android.view.MotionEvent
 import android.view.VelocityTracker
 import android.view.View
 import android.view.ViewConfiguration
-import androidx.core.content.res.ResourcesCompat
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -60,15 +59,6 @@ class WheelPicker @JvmOverloads constructor(
         isFocusable = true
 
         vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
-
-        // 用 MiSans Light 字体
-        try {
-            ResourcesCompat.getFont(context, R.font.misanslight)?.let {
-                textPaint.typeface = it
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
 
         if (attrs != null) {
             val ta = context.obtainStyledAttributes(attrs, R.styleable.WheelPicker)
