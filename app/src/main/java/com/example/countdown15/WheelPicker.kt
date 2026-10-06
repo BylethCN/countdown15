@@ -61,9 +61,9 @@ class WheelPicker @JvmOverloads constructor(
 
         vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
 
-        // 用 MiSans 字体
+        // 用 MiSans Light 字体
         try {
-            ResourcesCompat.getFont(context, R.font.misansregular)?.let {
+            ResourcesCompat.getFont(context, R.font.misanslight)?.let {
                 textPaint.typeface = it
             }
         } catch (e: Exception) {
@@ -87,7 +87,7 @@ class WheelPicker @JvmOverloads constructor(
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         textPaint.textSize = textSize
         val fm = textPaint.fontMetrics
-        // 行高系数 1.0，行距更紧，接近小米
+        // 行高系数 1.0，行距紧凑
         itemHeight = (fm.descent - fm.ascent) * 1.0f
 
         val width = (90 * resources.displayMetrics.density).toInt()

@@ -27,6 +27,15 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // 沉浸式全屏：隐藏状态栏
+        @Suppress("DEPRECATION")
+        window.decorView.systemUiVisibility = (
+            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_FULLSCREEN
+            )
+
         setContentView(R.layout.activity_main)
 
         tvTimer = findViewById(R.id.tvTimer)
@@ -55,8 +64,8 @@ class MainActivity : AppCompatActivity() {
             stopRingtoneAndReset()
         }
 
-        // 最外层点击：只有倒计时中才重新计时
-        findViewById<View>(R.id.rootLayout).setOnClickListener {
+        // 只有倒计时数字显示时，点它重新计时
+        tvTimer.setOnClickListener {
             if (isCounting) {
                 startCountdown()
             }
@@ -81,11 +90,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showCountingState() {
-    isCounting = true
-    findViewById<View>(R.id.timePickerLayout).visibility = View.GONE
-    btnStart.visibility = View.GONE
-    btnStop.visibility = View.VISIBLE   // 倒计时中显示停止按钮
-    tvTimer.visibility = TextView.VISIBLE
+        isCounting = true
+        findViewById<View>(R.id.timePickerLayout).visibility = View.GONE
+        btnStart.visibility = View.GONE
+        btnStop.visibility = View.VISIBLE
+        tvTimer.visibility = TextView.VISIBLE
     }
 
     private fun showRingingState() {
