@@ -53,6 +53,7 @@
 
 目录结构：
 
+```
 app/src/main/
 ├── java/com/example/countdown15/
 │ ├── MainActivity.kt 主界面逻辑
@@ -65,6 +66,7 @@ app/src/main/
 │ ├── font/ 字体（MiSans）
 │ └── mipmap-*/ App 图标
 └── AndroidManifest.xml
+```
 
 技术栈：
 
