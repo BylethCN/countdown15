@@ -1,14 +1,23 @@
 package com.example.countdown15
 
+import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.graphics.PorterDuff
+import android.graphics.drawable.GradientDrawable
 import android.media.Ringtone
 import android.media.RingtoneManager
+import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 
 class MainActivity : AppCompatActivity() {
 
@@ -19,6 +28,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var npHour: WheelPicker
     private lateinit var npMinute: WheelPicker
     private lateinit var npSecond: WheelPicker
+    private lateinit var rootLayout: FrameLayout
+    private lateinit var btnMenu: ImageView
+    private lateinit var colon1: TextView
+    private lateinit var colon2: TextView
 
     private var timer: CountDownTimer? = null
     private var ringtone: Ringtone? = null
@@ -26,20 +39,32 @@ class MainActivity : AppCompatActivity() {
     private var isCounting = false
     private var totalSeconds = 15
 
+    private var isDarkTheme = false
+
+    private val prefsName = "countdown15_prefs"
+    private val keyDarkTheme = "dark_theme"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 状态栏透明 + 图标深色
+        // 读取上次主题
+        val prefs = getSharedPreferences(prefsName, Context.MODE_PRIVATE)
+        isDarkTheme = prefs.getBoolean(keyDarkTheme, false)
+
         @Suppress("DEPRECATION")
         var flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            flags = flags or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // 黑主题用浅色状态栏图标（白色），白主题用深色图标（黑色）
+            if (!isDarkTheme) {
+                flags = flags or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+            }
         }
         @Suppress("DEPRECATION")
         window.decorView.systemUiVisibility = flags
 
         setContentView(R.layout.activity_main)
 
+        rootLayout = findViewById(R.id.rootLayout)
         tvTimer = findViewById(R.id.tvTimer)
         tvVersion = findViewById(R.id.tvVersion)
         btnStart = findViewById(R.id.btnStart)
@@ -47,6 +72,9 @@ class MainActivity : AppCompatActivity() {
         npHour = findViewById(R.id.npHour)
         npMinute = findViewById(R.id.npMinute)
         npSecond = findViewById(R.id.npSecond)
+        btnMenu = findViewById(R.id.btnMenu)
+        colon1 = findViewById(R.id.colon1)
+        colon2 = findViewById(R.id.colon2)
 
         tvVersion.text = "v" + getAppVersion()
 
@@ -54,11 +82,9 @@ class MainActivity : AppCompatActivity() {
         npMinute.setValue(0)
         npSecond.setValue(15)
 
-        // 滚轮垂直居中于整个屏幕物理分辨率
-        val rootView = findViewById<View>(R.id.rootLayout)
+        // 动态居中滚轮
         val timePickerLayout = findViewById<View>(R.id.timePickerLayout)
-
-        rootView.post {
+        rootLayout.post {
             val screenHeight = resources.displayMetrics.heightPixels
             val pickerHeight = timePickerLayout.height
             val topMargin = (screenHeight - pickerHeight) / 2
@@ -70,6 +96,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         showStartState()
+        applyTheme(isDarkTheme)
 
         btnStart.setOnClickListener {
             totalSeconds = npHour.value * 3600 + npMinute.value * 60 + npSecond.value
@@ -86,6 +113,71 @@ class MainActivity : AppCompatActivity() {
                 startCountdown()
             }
         }
+
+        // 右上角菜单
+        btnMenu.setOnClickListener { view ->
+            val popup = PopupMenu(this, view)
+            popup.menu.add(0, 1, 0, "切换主题")
+            popup.setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    1 -> {
+                        isDarkTheme = !isDarkTheme
+                        prefs.edit().putBoolean(keyDarkTheme, isDarkTheme).apply()
+                        applyTheme(isDarkTheme)
+                        true
+                    }
+                    else -> false
+                }
+            }
+            popup.show()
+        }
+    }
+
+    /** 应用主题 */
+    private fun applyTheme(dark: Boolean) {
+        val bgColor = if (dark) Color.parseColor("#000000") else Color.parseColor("#F5F5F5")
+        val mainTextColor = if (dark) Color.parseColor("#FFFFFF") else Color.parseColor("#000000")
+        val versionColor = if (dark) Color.parseColor("#888888") else Color.parseColor("#999999")
+        val buttonBgColor = if (dark) Color.parseColor("#1E1E1E") else Color.parseColor("#FFFFFF")
+
+        rootLayout.setBackgroundColor(bgColor)
+
+        colon1.setTextColor(mainTextColor)
+        colon2.setTextColor(mainTextColor)
+
+        tvTimer.setTextColor(mainTextColor)
+        tvVersion.setTextColor(versionColor)
+
+        // 按钮背景圆角
+        val btnBg = GradientDrawable()
+        btnBg.shape = GradientDrawable.RECTANGLE
+        btnBg.cornerRadius = dp(32f).toFloat()
+        btnBg.setColor(buttonBgColor)
+        btnStart.background = btnBg
+        btnStop.background = btnBg
+
+        // WheelPicker 文字颜色
+        npHour.setDarkTheme(dark)
+        npMinute.setDarkTheme(dark)
+        npSecond.setDarkTheme(dark)
+
+        // 右上角三个点图标颜色
+        btnMenu.setColorFilter(mainTextColor)
+
+        // 状态栏图标颜色
+        @Suppress("DEPRECATION")
+        var flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!dark) {
+                flags = flags or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+            }
+        }
+        @Suppress("DEPRECATION")
+        window.decorView.systemUiVisibility = flags
+    }
+
+    private fun dp(value: Float): Int {
+        return (value * resources.displayMetrics.density).toInt()
     }
 
     private fun getAppVersion(): String {

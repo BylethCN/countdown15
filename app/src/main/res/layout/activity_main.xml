@@ -40,6 +40,7 @@
             app:wp_textSize="64sp" />
 
         <TextView
+            android:id="@+id/colon1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=":"
@@ -62,6 +63,7 @@
             app:wp_textSize="64sp" />
 
         <TextView
+            android:id="@+id/colon2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=":"
@@ -85,6 +87,7 @@
 
     </LinearLayout>
 
+    <!-- 开始按钮 -->
     <FrameLayout
         android:id="@+id/btnStart"
         android:layout_width="140dp"
@@ -104,6 +107,7 @@
 
     </FrameLayout>
 
+    <!-- 停止按钮 -->
     <FrameLayout
         android:id="@+id/btnStop"
         android:layout_width="140dp"
@@ -124,6 +128,20 @@
 
     </FrameLayout>
 
+    <!-- 右上角菜单 -->
+    <ImageView
+        android:id="@+id/btnMenu"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:padding="12dp"
+        android:src="@drawable/ic_more"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:contentDescription="菜单" />
+
+    <!-- 版本号 -->
     <TextView
         android:id="@+id/tvVersion"
         android:layout_width="wrap_content"

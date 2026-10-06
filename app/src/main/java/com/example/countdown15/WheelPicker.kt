@@ -47,6 +47,8 @@ class WheelPicker @JvmOverloads constructor(
     private var lastRoundedOffset = 0
     private var lastVibrateTime = 0L
 
+    private var isDarkTheme = false
+
     var onValueChangedListener: ((Int) -> Unit)? = null
 
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -60,7 +62,6 @@ class WheelPicker @JvmOverloads constructor(
 
         vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
 
-        // 用 MiSansVF 可变字体
         try {
             androidx.core.content.res.ResourcesCompat.getFont(context, R.font.misansvf)?.let {
                 textPaint.typeface = it
@@ -83,10 +84,14 @@ class WheelPicker @JvmOverloads constructor(
         minFlingVelocity = (ViewConfiguration.get(context).scaledMinimumFlingVelocity * 4.0f).toInt()
     }
 
+    fun setDarkTheme(dark: Boolean) {
+        isDarkTheme = dark
+        invalidate()
+    }
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         textPaint.textSize = textSize
         val fm = textPaint.fontMetrics
-        // 行高系数 0.95，字更大、行距紧，接近小米
         itemHeight = (fm.descent - fm.ascent) * 0.95f
 
         val width = (90 * resources.displayMetrics.density).toInt()
@@ -110,15 +115,12 @@ class WheelPicker @JvmOverloads constructor(
 
         for (k in minK..maxK) {
             val y = centerY + (k + currentOffset) * itemHeight
-
             val displayValue = value + k
             val v = normalizeValue(displayValue) ?: continue
-
             val distFromCenter = abs(k + currentOffset)
             val t = (distFromCenter / 2f).coerceIn(0f, 1f)
             val scale = 1.0f - t * 0.45f
             val alpha = (255 - t * 195f).toInt()
-
             drawItem(canvas, v, y, scale, alpha)
         }
     }
@@ -137,7 +139,8 @@ class WheelPicker @JvmOverloads constructor(
     private fun drawItem(canvas: Canvas, v: Int, y: Float, scale: Float, alpha: Int) {
         val text = String.format("%02d", v)
         textPaint.textSize = textSize * scale
-        textPaint.color = Color.argb(alpha, 0, 0, 0)
+        val baseColor = if (isDarkTheme) 255 else 0
+        textPaint.color = Color.argb(alpha, baseColor, baseColor, baseColor)
 
         val fm = textPaint.fontMetrics
         val baseline = y - (fm.ascent + fm.descent) / 2
@@ -153,9 +156,7 @@ class WheelPicker @JvmOverloads constructor(
                 animRunnable?.let { removeCallbacks(it) }
                 animRunnable = null
                 applyFinalOffset(currentOffset)
-
                 lastRoundedOffset = Math.round(currentOffset)
-
                 parent?.requestDisallowInterceptTouchEvent(true)
                 lastY = event.y
                 dragDistance = 0f
@@ -166,9 +167,7 @@ class WheelPicker @JvmOverloads constructor(
                 lastY = event.y
                 currentOffset += dy / itemHeight
                 dragDistance += abs(dy)
-
                 checkVibration()
-
                 invalidate()
                 return true
             }
@@ -201,11 +200,9 @@ class WheelPicker @JvmOverloads constructor(
         try {
             val vb = vibrator ?: return
             if (!vb.hasVibrator()) return
-
             val now = System.currentTimeMillis()
             if (now - lastVibrateTime < 30L) return
             lastVibrateTime = now
-
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 vb.vibrate(VibrationEffect.createOneShot(3, VibrationEffect.DEFAULT_AMPLITUDE))
             } else {
@@ -226,10 +223,8 @@ class WheelPicker @JvmOverloads constructor(
         val deltaBySpeed = -v * 2.0f
         val deltaByDistance = dragDistance / itemHeight * 0.15f
         val sign = if (deltaBySpeed >= 0) 1f else -1f
-
         var delta = deltaBySpeed + sign * deltaByDistance
         delta = delta.coerceIn(-25f, 25f)
-
         val target = Math.round(currentOffset + delta).toFloat()
         animateOffsetTo(target)
     }
@@ -252,19 +247,14 @@ class WheelPicker @JvmOverloads constructor(
             override fun run() {
                 val elapsed = System.currentTimeMillis() - startTime
                 val t = min(1f, elapsed / duration.toFloat())
-
                 val u = when {
                     t < 0.533f -> (t / 0.533f) * 0.917f
                     t < 0.667f -> 0.917f + ((t - 0.533f) / 0.134f) * 0.041f
                     else -> 0.958f + ((t - 0.667f) / 0.333f) * 0.042f
                 }
-
                 val eased = 1 - (1 - u) * (1 - u) * (1 - u) * (1 - u)
-
                 currentOffset = start + diff * eased
-
                 checkVibration()
-
                 invalidate()
                 if (t < 1f) {
                     post(this)
@@ -280,7 +270,6 @@ class WheelPicker @JvmOverloads constructor(
 
     private fun applyFinalOffset(target: Float) {
         checkVibration()
-
         val delta = -Math.round(target)
         currentOffset = 0f
         if (delta != 0) {
