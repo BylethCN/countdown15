@@ -48,6 +48,8 @@
             android:textSize="56sp"
             android:textStyle="bold"
             android:fontFamily="@font/robotoregular"
+            android:includeFontPadding="false"
+            android:translationY="4dp"
             android:layout_marginHorizontal="20dp" />
 
         <com.example.countdown15.WheelPicker
@@ -72,6 +74,8 @@
             android:textSize="56sp"
             android:textStyle="bold"
             android:fontFamily="@font/robotoregular"
+            android:includeFontPadding="false"
+            android:translationY="4dp"
             android:layout_marginHorizontal="20dp" />
 
         <com.example.countdown15.WheelPicker
