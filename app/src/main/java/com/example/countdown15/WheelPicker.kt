@@ -237,7 +237,7 @@ class WheelPicker @JvmOverloads constructor(
             return
         }
         val distance = abs(diff)
-        val duration = (500 + (distance * 110).toInt()).coerceIn(500, 2200).toLong()
+        val duration = (500 + (distance * 110).toInt()).coerceIn(500, 2400).toLong()
 
         val startTime = System.currentTimeMillis()
         val runnable = object : Runnable {
@@ -245,11 +245,12 @@ class WheelPicker @JvmOverloads constructor(
                 val elapsed = System.currentTimeMillis() - startTime
                 val t = min(1f, elapsed / duration.toFloat())
 
-                // 时间重映射：前 60% 时间走 80% 内部进度，后 40% 走剩下 20%
+                // 时间重映射：前 60% 时间走 90% 内部进度，后 40% 只走剩下 10%
+                // 末尾极慢，像小米
                 val u = if (t < 0.6f) {
-                    (t / 0.6f) * 0.8f
+                    (t / 0.6f) * 0.9f
                 } else {
-                    0.8f + ((t - 0.6f) / 0.4f) * 0.2f
+                    0.9f + ((t - 0.6f) / 0.4f) * 0.1f
                 }
 
                 // 统一四次缓出
