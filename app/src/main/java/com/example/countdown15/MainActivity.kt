@@ -169,8 +169,24 @@ class MainActivity : AppCompatActivity() {
                 popup.dismiss()
             }
 
-            popup.showAsDropDown(btnMenu, -dp(40f), dp(8f))
+            // 先测量 popup 尺寸
+            popupView.measure(
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            )
+            val popupWidth = popupView.measuredWidth
 
+            // 三个点按钮在屏幕上的坐标
+            val loc = IntArray(2)
+            btnMenu.getLocationOnScreen(loc)
+
+            // 菜单右边和按钮右边对齐，再往左偏 20dp
+            val x = loc[0] + btnMenu.width - popupWidth - dp(20f)
+            val y = loc[1] + btnMenu.height + dp(8f)
+
+            popup.showAtLocation(rootLayout, Gravity.NO_GRAVITY, x, y)
+
+            // 缩放动画
             popupView.post {
                 popupView.pivotX = popupView.width.toFloat()
                 popupView.pivotY = 0f
