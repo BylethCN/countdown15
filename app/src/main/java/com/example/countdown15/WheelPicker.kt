@@ -92,7 +92,7 @@ class WheelPicker @JvmOverloads constructor(
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         textPaint.textSize = textSize
         val fm = textPaint.fontMetrics
-        itemHeight = (fm.descent - fm.ascent) * 0.85f
+        itemHeight = (fm.descent - fm.ascent) * 0.80f
 
         val width = (90 * resources.displayMetrics.density).toInt()
         var height = (itemHeight * visibleCount).toInt() + paddingTop + paddingBottom
