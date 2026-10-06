@@ -47,6 +47,9 @@ class WheelPicker @JvmOverloads constructor(
     private var lastRoundedOffset = 0
     private var lastVibrateTime = 0L
 
+    /** 是否黑主题 */
+    private var isDark = false
+
     var onValueChangedListener: ((Int) -> Unit)? = null
 
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -83,10 +86,16 @@ class WheelPicker @JvmOverloads constructor(
         minFlingVelocity = (ViewConfiguration.get(context).scaledMinimumFlingVelocity * 4.0f).toInt()
     }
 
+    /** 主题切换：黑主题时文字为白色 */
+    fun setDarkTheme(dark: Boolean) {
+        isDark = dark
+        invalidate()
+    }
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         textPaint.textSize = textSize
         val fm = textPaint.fontMetrics
-        // 行高系数 0.80，行距紧凑
+        // 行高系数 0.80
         itemHeight = (fm.descent - fm.ascent) * 0.80f
 
         val width = (90 * resources.displayMetrics.density).toInt()
@@ -137,7 +146,9 @@ class WheelPicker @JvmOverloads constructor(
     private fun drawItem(canvas: Canvas, v: Int, y: Float, scale: Float, alpha: Int) {
         val text = String.format("%02d", v)
         textPaint.textSize = textSize * scale
-        textPaint.color = Color.argb(alpha, 0, 0, 0)
+        // 黑主题用白色，白主题用黑色
+        val base = if (isDark) 255 else 0
+        textPaint.color = Color.argb(alpha, base, base, base)
 
         val fm = textPaint.fontMetrics
         val baseline = y - (fm.ascent + fm.descent) / 2
