@@ -1,6 +1,7 @@
 package com.example.countdown15
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
@@ -125,6 +126,7 @@ class MainActivity : AppCompatActivity() {
 
             val popupView = layoutInflater.inflate(R.layout.popup_menu, null)
             val popupRoot = popupView.findViewById<LinearLayout>(R.id.popupRoot)
+            val itemAbout = popupView.findViewById<TextView>(R.id.popupAbout)
             val itemToggle = popupView.findViewById<TextView>(R.id.popupToggleTheme)
 
             val popupBgColor = if (isDarkTheme) Color.parseColor("#2B2B2B") else Color.parseColor("#FFFFFF")
@@ -136,6 +138,7 @@ class MainActivity : AppCompatActivity() {
             bg.setColor(popupBgColor)
             popupRoot.background = bg
 
+            itemAbout.setTextColor(popupTextColor)
             itemToggle.setTextColor(popupTextColor)
 
             val popup = PopupWindow(
@@ -148,6 +151,13 @@ class MainActivity : AppCompatActivity() {
             popup.isOutsideTouchable = true
             popup.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
+            // 关于
+            itemAbout.setOnClickListener {
+                startActivity(Intent(this, AboutActivity::class.java))
+                popup.dismiss()
+            }
+
+            // 切换主题
             itemToggle.setOnClickListener {
                 isDarkTheme = !isDarkTheme
                 prefs.edit().putBoolean(keyDarkTheme, isDarkTheme).apply()
@@ -169,18 +179,17 @@ class MainActivity : AppCompatActivity() {
                 popup.dismiss()
             }
 
-            // 先测量 popup 尺寸
+            // 测量 popup 尺寸
             popupView.measure(
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
             )
             val popupWidth = popupView.measuredWidth
 
-            // 三个点按钮在屏幕上的坐标
+            // 按钮坐标
             val loc = IntArray(2)
             btnMenu.getLocationOnScreen(loc)
 
-            // 菜单右边和按钮右边对齐，再往左偏 20dp
             val x = loc[0] + btnMenu.width - popupWidth - dp(20f)
             val y = loc[1] + btnMenu.height + dp(8f)
 
