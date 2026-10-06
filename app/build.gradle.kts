@@ -11,8 +11,8 @@ android {
         applicationId = "com.example.countdown15"
         minSdk = 24
         targetSdk = 34
-        versionCode = 45
-        versionName = "0.0.45"
+        versionCode = 46
+        versionName = "0.0.46"
     }
 
     signingConfigs {
