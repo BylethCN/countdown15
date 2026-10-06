@@ -1,9 +1,9 @@
 package com.example.countdown15
 
+import android.app.AlertDialog
 import android.content.Context
-import android.content.res.ColorStateList
 import android.graphics.Color
-import android.graphics.PorterDuff
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.media.Ringtone
 import android.media.RingtoneManager
@@ -14,10 +14,9 @@ import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
-import android.widget.PopupMenu
+import android.widget.ListView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 
 class MainActivity : AppCompatActivity() {
 
@@ -32,6 +31,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnMenu: ImageView
     private lateinit var colon1: TextView
     private lateinit var colon2: TextView
+    private lateinit var menuMask: View
 
     private var timer: CountDownTimer? = null
     private var ringtone: Ringtone? = null
@@ -47,14 +47,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 读取上次主题
         val prefs = getSharedPreferences(prefsName, Context.MODE_PRIVATE)
         isDarkTheme = prefs.getBoolean(keyDarkTheme, false)
 
         @Suppress("DEPRECATION")
         var flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            // 黑主题用浅色状态栏图标（白色），白主题用深色图标（黑色）
             if (!isDarkTheme) {
                 flags = flags or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
             }
@@ -75,6 +73,7 @@ class MainActivity : AppCompatActivity() {
         btnMenu = findViewById(R.id.btnMenu)
         colon1 = findViewById(R.id.colon1)
         colon2 = findViewById(R.id.colon2)
+        menuMask = findViewById(R.id.menuMask)
 
         tvVersion.text = "v" + getAppVersion()
 
@@ -82,7 +81,6 @@ class MainActivity : AppCompatActivity() {
         npMinute.setValue(0)
         npSecond.setValue(15)
 
-        // 动态居中滚轮
         val timePickerLayout = findViewById<View>(R.id.timePickerLayout)
         rootLayout.post {
             val screenHeight = resources.displayMetrics.heightPixels
@@ -114,26 +112,44 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // 右上角菜单
-        btnMenu.setOnClickListener { view ->
-            val popup = PopupMenu(this, view)
-            popup.menu.add(0, 1, 0, "切换主题")
-            popup.setOnMenuItemClickListener { item ->
-                when (item.itemId) {
-                    1 -> {
-                        isDarkTheme = !isDarkTheme
-                        prefs.edit().putBoolean(keyDarkTheme, isDarkTheme).apply()
-                        applyTheme(isDarkTheme)
-                        true
+        // 右上角菜单：用 AlertDialog + 遮罩
+        btnMenu.setOnClickListener {
+            menuMask.visibility = View.VISIBLE
+
+            val dialogBg = if (isDarkTheme) Color.parseColor("#1E1E1E") else Color.parseColor("#FFFFFF")
+            val textColor = if (isDarkTheme) Color.parseColor("#FFFFFF") else Color.parseColor("#000000")
+
+            val dialog = AlertDialog.Builder(this)
+                .setItems(arrayOf("切换主题")) { _, _ ->
+                    isDarkTheme = !isDarkTheme
+                    prefs.edit().putBoolean(keyDarkTheme, isDarkTheme).apply()
+                    applyTheme(isDarkTheme)
+                    menuMask.visibility = View.GONE
+                }
+                .setOnDismissListener {
+                    menuMask.visibility = View.GONE
+                }
+                .create()
+
+            dialog.setOnShowListener {
+                dialog.window?.setBackgroundDrawable(ColorDrawable(dialogBg))
+                val listView = dialog.findViewById<ListView>(android.R.id.list)
+                listView?.post {
+                    for (i in 0 until listView.childCount) {
+                        val tv = listView.getChildAt(i) as? TextView
+                        tv?.setTextColor(textColor)
                     }
-                    else -> false
                 }
             }
-            popup.show()
+            dialog.show()
+        }
+
+        // 点遮罩也关菜单
+        menuMask.setOnClickListener {
+            // 由 Dialog 的 dismiss 回调处理
         }
     }
 
-    /** 应用主题 */
     private fun applyTheme(dark: Boolean) {
         val bgColor = if (dark) Color.parseColor("#000000") else Color.parseColor("#F5F5F5")
         val mainTextColor = if (dark) Color.parseColor("#FFFFFF") else Color.parseColor("#000000")
@@ -148,7 +164,6 @@ class MainActivity : AppCompatActivity() {
         tvTimer.setTextColor(mainTextColor)
         tvVersion.setTextColor(versionColor)
 
-        // 按钮背景圆角
         val btnBg = GradientDrawable()
         btnBg.shape = GradientDrawable.RECTANGLE
         btnBg.cornerRadius = dp(32f).toFloat()
@@ -156,15 +171,12 @@ class MainActivity : AppCompatActivity() {
         btnStart.background = btnBg
         btnStop.background = btnBg
 
-        // WheelPicker 文字颜色
         npHour.setDarkTheme(dark)
         npMinute.setDarkTheme(dark)
         npSecond.setDarkTheme(dark)
 
-        // 右上角三个点图标颜色
         btnMenu.setColorFilter(mainTextColor)
 
-        // 状态栏图标颜色
         @Suppress("DEPRECATION")
         var flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

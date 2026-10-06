@@ -128,13 +128,13 @@
 
     </FrameLayout>
 
-    <!-- 右上角菜单 -->
+    <!-- 右上角菜单按钮，改 marginTop=56dp，避免跟状态栏重叠 -->
     <ImageView
         android:id="@+id/btnMenu"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_gravity="top|end"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="56dp"
         android:layout_marginEnd="16dp"
         android:padding="12dp"
         android:src="@drawable/ic_more"
@@ -151,5 +151,15 @@
         android:textColor="#999999"
         android:textSize="12sp"
         android:text="" />
+
+    <!-- 菜单遮罩层（必须放在最后，盖住所有内容，但不影响独立窗口的 AlertDialog） -->
+    <View
+        android:id="@+id/menuMask"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#66000000"
+        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true" />
 
 </FrameLayout>
