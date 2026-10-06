@@ -194,7 +194,6 @@ class WheelPicker @JvmOverloads constructor(
             val vb = vibrator ?: return
             if (!vb.hasVibrator()) return
 
-            // 最小间隔 30ms
             val now = System.currentTimeMillis()
             if (now - lastVibrateTime < 30L) return
             lastVibrateTime = now
@@ -238,16 +237,16 @@ class WheelPicker @JvmOverloads constructor(
             return
         }
         val distance = abs(diff)
-        // 时长 400ms 起，上限 2000ms
-        val duration = (400 + (distance * 110).toInt()).coerceIn(400, 2000).toLong()
+        // 时长 400ms 起，上限 2200ms
+        val duration = (400 + (distance * 110).toInt()).coerceIn(400, 2200).toLong()
 
         val startTime = System.currentTimeMillis()
         val runnable = object : Runnable {
             override fun run() {
                 val elapsed = System.currentTimeMillis() - startTime
                 val t = min(1f, elapsed / duration.toFloat())
-                // 五次缓出，末尾更拖
-                val eased = 1 - (1 - t) * (1 - t) * (1 - t) * (1 - t) * (1 - t)
+                // 七次缓出：末尾极慢，像小米
+                val eased = 1 - (1 - t) * (1 - t) * (1 - t) * (1 - t) * (1 - t) * (1 - t) * (1 - t)
                 currentOffset = start + diff * eased
 
                 checkVibration()
