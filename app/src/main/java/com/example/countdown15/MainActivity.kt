@@ -1,6 +1,5 @@
 package com.example.countdown15
 
-import android.app.AlertDialog
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -12,9 +11,11 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
-import android.widget.ListView
+import android.widget.LinearLayout
+import android.widget.PopupWindow
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
@@ -112,41 +113,51 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // 右上角菜单：用 AlertDialog + 遮罩
+        // 右上角菜单：PopupWindow 贴锚点
         btnMenu.setOnClickListener {
             menuMask.visibility = View.VISIBLE
 
-            val dialogBg = if (isDarkTheme) Color.parseColor("#1E1E1E") else Color.parseColor("#FFFFFF")
-            val textColor = if (isDarkTheme) Color.parseColor("#FFFFFF") else Color.parseColor("#000000")
+            val popupView = layoutInflater.inflate(R.layout.popup_menu, null)
+            val popupRoot = popupView.findViewById<LinearLayout>(R.id.popupRoot)
+            val itemToggle = popupView.findViewById<TextView>(R.id.popupToggleTheme)
 
-            val dialog = AlertDialog.Builder(this)
-                .setItems(arrayOf("切换主题")) { _, _ ->
-                    isDarkTheme = !isDarkTheme
-                    prefs.edit().putBoolean(keyDarkTheme, isDarkTheme).apply()
-                    applyTheme(isDarkTheme)
-                    menuMask.visibility = View.GONE
-                }
-                .setOnDismissListener {
-                    menuMask.visibility = View.GONE
-                }
-                .create()
+            val popupBgColor = if (isDarkTheme) Color.parseColor("#2B2B2B") else Color.parseColor("#FFFFFF")
+            val popupTextColor = if (isDarkTheme) Color.parseColor("#FFFFFF") else Color.parseColor("#000000")
 
-            dialog.setOnShowListener {
-                dialog.window?.setBackgroundDrawable(ColorDrawable(dialogBg))
-                val listView = dialog.findViewById<ListView>(android.R.id.list)
-                listView?.post {
-                    for (i in 0 until listView.childCount) {
-                        val tv = listView.getChildAt(i) as? TextView
-                        tv?.setTextColor(textColor)
-                    }
-                }
+            val bg = GradientDrawable()
+            bg.shape = GradientDrawable.RECTANGLE
+            bg.cornerRadius = dp(8f).toFloat()
+            bg.setColor(popupBgColor)
+            popupRoot.background = bg
+
+            itemToggle.setTextColor(popupTextColor)
+
+            val popup = PopupWindow(
+                popupView,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                true
+            )
+            popup.elevation = dp(8f).toFloat()
+            popup.isOutsideTouchable = true
+            popup.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+            itemToggle.setOnClickListener {
+                isDarkTheme = !isDarkTheme
+                prefs.edit().putBoolean(keyDarkTheme, isDarkTheme).apply()
+                applyTheme(isDarkTheme)
+                popup.dismiss()
             }
-            dialog.show()
-        }
 
-        // 点遮罩也关菜单
-        menuMask.setOnClickListener {
-            // 由 Dialog 的 dismiss 回调处理
+            popup.setOnDismissListener {
+                menuMask.visibility = View.GONE
+            }
+
+            menuMask.setOnClickListener {
+                popup.dismiss()
+            }
+
+            popup.showAsDropDown(btnMenu, 0, dp(8f))
         }
     }
 

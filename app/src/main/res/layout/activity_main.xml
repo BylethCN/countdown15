@@ -87,7 +87,6 @@
 
     </LinearLayout>
 
-    <!-- 开始按钮 -->
     <FrameLayout
         android:id="@+id/btnStart"
         android:layout_width="140dp"
@@ -107,7 +106,6 @@
 
     </FrameLayout>
 
-    <!-- 停止按钮 -->
     <FrameLayout
         android:id="@+id/btnStop"
         android:layout_width="140dp"
@@ -128,7 +126,6 @@
 
     </FrameLayout>
 
-    <!-- 右上角菜单按钮，改 marginTop=56dp，避免跟状态栏重叠 -->
     <ImageView
         android:id="@+id/btnMenu"
         android:layout_width="48dp"
@@ -141,7 +138,6 @@
         android:background="?android:attr/selectableItemBackgroundBorderless"
         android:contentDescription="菜单" />
 
-    <!-- 版本号 -->
     <TextView
         android:id="@+id/tvVersion"
         android:layout_width="wrap_content"
@@ -152,7 +148,6 @@
         android:textSize="12sp"
         android:text="" />
 
-    <!-- 菜单遮罩层（必须放在最后，盖住所有内容，但不影响独立窗口的 AlertDialog） -->
     <View
         android:id="@+id/menuMask"
         android:layout_width="match_parent"
