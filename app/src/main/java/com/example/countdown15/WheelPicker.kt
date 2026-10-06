@@ -245,7 +245,8 @@ class WheelPicker @JvmOverloads constructor(
             override fun run() {
                 val elapsed = System.currentTimeMillis() - startTime
                 val t = min(1f, elapsed / duration.toFloat())
-                val eased = 1 - (1 - t) * (1 - t) * (1 - t)
+                // 线性减速：速度从最大匀减到 0
+                val eased = 2 * t - t * t
                 currentOffset = start + diff * eased
 
                 checkVibration()
