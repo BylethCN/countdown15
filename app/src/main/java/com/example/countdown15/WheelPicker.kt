@@ -238,15 +238,16 @@ class WheelPicker @JvmOverloads constructor(
             return
         }
         val distance = abs(diff)
-        val duration = (300 + (distance * 80).toInt()).coerceIn(300, 1500).toLong()
+        // 时长稍加长：350ms 起，上限 1700ms
+        val duration = (350 + (distance * 90).toInt()).coerceIn(350, 1700).toLong()
 
         val startTime = System.currentTimeMillis()
         val runnable = object : Runnable {
             override fun run() {
                 val elapsed = System.currentTimeMillis() - startTime
                 val t = min(1f, elapsed / duration.toFloat())
-                // 线性减速：速度从最大匀减到 0
-                val eased = 2 * t - t * t
+                // 四次缓出，末尾减速更温柔
+                val eased = 1 - (1 - t) * (1 - t) * (1 - t) * (1 - t)
                 currentOffset = start + diff * eased
 
                 checkVibration()
