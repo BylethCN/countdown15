@@ -23,7 +23,6 @@ import androidx.appcompat.app.AppCompatActivity
 class MainActivity : AppCompatActivity() {
 
     private lateinit var tvTimer: TextView
-    private lateinit var tvVersion: TextView
     private lateinit var btnStart: FrameLayout
     private lateinit var btnStop: FrameLayout
     private lateinit var npHour: WheelPicker
@@ -66,7 +65,6 @@ class MainActivity : AppCompatActivity() {
 
         rootLayout = findViewById(R.id.rootLayout)
         tvTimer = findViewById(R.id.tvTimer)
-        tvVersion = findViewById(R.id.tvVersion)
         btnStart = findViewById(R.id.btnStart)
         btnStop = findViewById(R.id.btnStop)
         npHour = findViewById(R.id.npHour)
@@ -76,8 +74,6 @@ class MainActivity : AppCompatActivity() {
         colon1 = findViewById(R.id.colon1)
         colon2 = findViewById(R.id.colon2)
         menuMask = findViewById(R.id.menuMask)
-
-        tvVersion.text = "v" + getAppVersion()
 
         npHour.setValue(0)
         npMinute.setValue(0)
@@ -116,7 +112,6 @@ class MainActivity : AppCompatActivity() {
 
         // 右上角菜单
         btnMenu.setOnClickListener {
-            // 遮罩：渐显
             menuMask.alpha = 0f
             menuMask.visibility = View.VISIBLE
             menuMask.animate()
@@ -151,13 +146,11 @@ class MainActivity : AppCompatActivity() {
             popup.isOutsideTouchable = true
             popup.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
-            // 关于
             itemAbout.setOnClickListener {
                 startActivity(Intent(this, AboutActivity::class.java))
                 popup.dismiss()
             }
 
-            // 切换主题
             itemToggle.setOnClickListener {
                 isDarkTheme = !isDarkTheme
                 prefs.edit().putBoolean(keyDarkTheme, isDarkTheme).apply()
@@ -179,14 +172,12 @@ class MainActivity : AppCompatActivity() {
                 popup.dismiss()
             }
 
-            // 测量 popup 尺寸
             popupView.measure(
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
             )
             val popupWidth = popupView.measuredWidth
 
-            // 按钮坐标
             val loc = IntArray(2)
             btnMenu.getLocationOnScreen(loc)
 
@@ -195,7 +186,6 @@ class MainActivity : AppCompatActivity() {
 
             popup.showAtLocation(rootLayout, Gravity.NO_GRAVITY, x, y)
 
-            // 缩放动画
             popupView.post {
                 popupView.pivotX = popupView.width.toFloat()
                 popupView.pivotY = 0f
@@ -214,7 +204,6 @@ class MainActivity : AppCompatActivity() {
     private fun applyTheme(dark: Boolean) {
         val bgColor = if (dark) Color.parseColor("#000000") else Color.parseColor("#F5F5F5")
         val mainTextColor = if (dark) Color.parseColor("#FFFFFF") else Color.parseColor("#000000")
-        val versionColor = if (dark) Color.parseColor("#888888") else Color.parseColor("#999999")
         val buttonBgColor = if (dark) Color.parseColor("#1E1E1E") else Color.parseColor("#FFFFFF")
 
         rootLayout.setBackgroundColor(bgColor)
@@ -223,7 +212,6 @@ class MainActivity : AppCompatActivity() {
         colon2.setTextColor(mainTextColor)
 
         tvTimer.setTextColor(mainTextColor)
-        tvVersion.setTextColor(versionColor)
 
         val btnBg = GradientDrawable()
         btnBg.shape = GradientDrawable.RECTANGLE
@@ -251,15 +239,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun dp(value: Float): Int {
         return (value * resources.displayMetrics.density).toInt()
-    }
-
-    private fun getAppVersion(): String {
-        return try {
-            val pInfo = packageManager.getPackageInfo(packageName, 0)
-            pInfo.versionName ?: "0.0.1"
-        } catch (e: Exception) {
-            "0.0.1"
-        }
     }
 
     private fun showStartState() {

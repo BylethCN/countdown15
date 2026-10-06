@@ -9,19 +9,19 @@
     android:minWidth="140dp">
 
     <TextView
-        android:id="@+id/popupAbout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingVertical="14dp"
-        android:text="关于"
-        android:textSize="16sp" />
-
-    <TextView
         android:id="@+id/popupToggleTheme"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingVertical="14dp"
         android:text="切换主题"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/popupAbout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="14dp"
+        android:text="关于"
         android:textSize="16sp" />
 
 </LinearLayout>

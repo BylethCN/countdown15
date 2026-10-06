@@ -136,17 +136,7 @@
         android:padding="12dp"
         android:src="@drawable/ic_more"
         android:background="?android:attr/selectableItemBackgroundBorderless"
-        android:contentDescription="菜单" />
-
-    <TextView
-        android:id="@+id/tvVersion"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="12dp"
-        android:textColor="#999999"
-        android:textSize="12sp"
-        android:text="" />
+        android:contentDescription="更多" />
 
     <View
         android:id="@+id/menuMask"
