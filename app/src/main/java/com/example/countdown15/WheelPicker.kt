@@ -237,6 +237,7 @@ class WheelPicker @JvmOverloads constructor(
             return
         }
         val distance = abs(diff)
+        // 时长：500ms 起，每格 110ms，上限 3000ms
         val duration = (500 + (distance * 110).toInt()).coerceIn(500, 3000).toLong()
 
         val startTime = System.currentTimeMillis()
@@ -246,13 +247,13 @@ class WheelPicker @JvmOverloads constructor(
                 val t = min(1f, elapsed / duration.toFloat())
 
                 // 三段式：
-                //   0 ~ 0.5    时间走 0.995 内部进度（快）
-                //   0.5 ~ 0.75 时间走 0.004 内部进度（慢）
-                //   0.75 ~ 1   时间走 0.001 内部进度（最后一格，极慢）
+                //   0 ~ 0.40    时间走 70% 距离（快）
+                //   0.40 ~ 0.75 时间走 25% 距离（中）
+                //   0.75 ~ 1    时间走 5% 距离（慢，但看得见在动）
                 val u = when {
-                    t < 0.5f -> (t / 0.5f) * 0.995f
-                    t < 0.75f -> 0.995f + ((t - 0.5f) / 0.25f) * 0.004f
-                    else -> 0.999f + ((t - 0.75f) / 0.25f) * 0.001f
+                    t < 0.4f -> (t / 0.4f) * 0.70f
+                    t < 0.75f -> 0.70f + ((t - 0.4f) / 0.35f) * 0.25f
+                    else -> 0.95f + ((t - 0.75f) / 0.25f) * 0.05f
                 }
 
                 // 统一四次缓出
