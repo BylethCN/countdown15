@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.Typeface
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
@@ -13,6 +12,7 @@ import android.view.MotionEvent
 import android.view.VelocityTracker
 import android.view.View
 import android.view.ViewConfiguration
+import androidx.core.content.res.ResourcesCompat
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -53,7 +53,6 @@ class WheelPicker @JvmOverloads constructor(
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         textAlign = Paint.Align.CENTER
         color = Color.BLACK
-        typeface = Typeface.create("sans-serif-light", Typeface.NORMAL)
     }
 
     init {
@@ -61,6 +60,15 @@ class WheelPicker @JvmOverloads constructor(
         isFocusable = true
 
         vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+
+        // 用 MiSans 字体
+        try {
+            ResourcesCompat.getFont(context, R.font.misansregular)?.let {
+                textPaint.typeface = it
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
 
         if (attrs != null) {
             val ta = context.obtainStyledAttributes(attrs, R.styleable.WheelPicker)
@@ -79,8 +87,8 @@ class WheelPicker @JvmOverloads constructor(
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         textPaint.textSize = textSize
         val fm = textPaint.fontMetrics
-        // 行高系数 1.15，行距更紧凑，接近小米
-        itemHeight = (fm.descent - fm.ascent) * 1.15f
+        // 行高系数 1.0，行距更紧，接近小米
+        itemHeight = (fm.descent - fm.ascent) * 1.0f
 
         val width = (90 * resources.displayMetrics.density).toInt()
         var height = (itemHeight * visibleCount).toInt() + paddingTop + paddingBottom
