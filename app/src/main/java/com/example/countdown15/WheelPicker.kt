@@ -47,8 +47,6 @@ class WheelPicker @JvmOverloads constructor(
     private var lastRoundedOffset = 0
     private var lastVibrateTime = 0L
 
-    private var isDarkTheme = false
-
     var onValueChangedListener: ((Int) -> Unit)? = null
 
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -62,8 +60,9 @@ class WheelPicker @JvmOverloads constructor(
 
         vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
 
+        // 用 Roboto-Regular 字体
         try {
-            androidx.core.content.res.ResourcesCompat.getFont(context, R.font.misansvf)?.let {
+            androidx.core.content.res.ResourcesCompat.getFont(context, R.font.robotoregular)?.let {
                 textPaint.typeface = it
             }
         } catch (e: Exception) {
@@ -84,14 +83,10 @@ class WheelPicker @JvmOverloads constructor(
         minFlingVelocity = (ViewConfiguration.get(context).scaledMinimumFlingVelocity * 4.0f).toInt()
     }
 
-    fun setDarkTheme(dark: Boolean) {
-        isDarkTheme = dark
-        invalidate()
-    }
-
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         textPaint.textSize = textSize
         val fm = textPaint.fontMetrics
+        // 行高系数 0.80，行距紧凑
         itemHeight = (fm.descent - fm.ascent) * 0.80f
 
         val width = (90 * resources.displayMetrics.density).toInt()
@@ -115,12 +110,15 @@ class WheelPicker @JvmOverloads constructor(
 
         for (k in minK..maxK) {
             val y = centerY + (k + currentOffset) * itemHeight
+
             val displayValue = value + k
             val v = normalizeValue(displayValue) ?: continue
+
             val distFromCenter = abs(k + currentOffset)
             val t = (distFromCenter / 2f).coerceIn(0f, 1f)
             val scale = 1.0f - t * 0.45f
             val alpha = (255 - t * 195f).toInt()
+
             drawItem(canvas, v, y, scale, alpha)
         }
     }
@@ -139,8 +137,7 @@ class WheelPicker @JvmOverloads constructor(
     private fun drawItem(canvas: Canvas, v: Int, y: Float, scale: Float, alpha: Int) {
         val text = String.format("%02d", v)
         textPaint.textSize = textSize * scale
-        val baseColor = if (isDarkTheme) 255 else 0
-        textPaint.color = Color.argb(alpha, baseColor, baseColor, baseColor)
+        textPaint.color = Color.argb(alpha, 0, 0, 0)
 
         val fm = textPaint.fontMetrics
         val baseline = y - (fm.ascent + fm.descent) / 2
