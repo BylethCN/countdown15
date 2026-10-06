@@ -47,7 +47,9 @@
 
 构建命令：
 
+```
 ./gradlew assembleDebug
+```
 
 或者直接推送到 main 分支，GitHub Actions 会自动构建并生成 APK。
 
@@ -56,15 +58,15 @@
 ```
 app/src/main/
 ├── java/com/example/countdown15/
-│ ├── MainActivity.kt 主界面逻辑
-│ ├── WheelPicker.kt 自定义滚轮控件
-│ └── AboutActivity.kt 关于页
+│   ├── MainActivity.kt      主界面逻辑
+│   ├── WheelPicker.kt       自定义滚轮控件
+│   └── AboutActivity.kt     关于页
 ├── res/
-│ ├── layout/ 界面布局
-│ ├── drawable/ 图标、按钮背景
-│ ├── values/ 颜色、字符串、自定义属性
-│ ├── font/ 字体（MiSans）
-│ └── mipmap-*/ App 图标
+│   ├── layout/             界面布局
+│   ├── drawable/           图标、按钮背景
+│   ├── values/             颜色、字符串、自定义属性
+│   ├── font/               字体（MiSans）
+│   └── mipmap-*/           App 图标
 └── AndroidManifest.xml
 ```
 
