@@ -305,6 +305,16 @@ class WheelPicker @JvmOverloads constructor(
         invalidate()
     }
 
+    /** 把还在惯性/回弹动画里的滚轮立刻落位到当前正中间的那个数字 */
+    fun commitPendingValue() {
+        val running = animRunnable
+        if (running != null) {
+            removeCallbacks(running)
+            animRunnable = null
+        }
+        applyFinalOffset(currentOffset)
+    }
+
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         animRunnable?.let { removeCallbacks(it) }

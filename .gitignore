@@ -1,0 +1,20 @@
+# Gradle
+.gradle/
+build/
+app/build/
+
+# Local configuration (SDK path)
+local.properties
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+captures/
+
+# Native build
+.externalNativeBuild/
+.cxx/
+
+# OS
+.DS_Store
+Thumbs.db

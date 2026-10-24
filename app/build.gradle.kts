@@ -1,4 +1,4 @@
-plugins {
+﻿plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
 }
@@ -11,8 +11,8 @@ android {
         applicationId = "com.example.countdown15"
         minSdk = 24
         targetSdk = 34
-        versionCode = 83
-        versionName = "0.0.83"
+        versionCode = 115
+        versionName = "0.0.115"
     }
 
     signingConfigs {
@@ -46,3 +46,4 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("androidx.core:core-ktx:1.13.1")
 }
+
