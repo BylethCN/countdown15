@@ -54,33 +54,47 @@
 ./gradlew assembleDebug
 ```
 
-产物：`app/build/outputs/apk/debug/app-debug.apk`
+或者直接推送到 `main` 分支，GitHub Actions 会自动构建并生成 APK。
+
+产物：`app/build/outputs/apk/debug/app-debug.apk`；CI 会以 `versionName` 为 tag 创建 Release（如 `v0.0.115`）并附上 APK。
 
 `local.properties` 里的 `sdk.dir` 指向本机 SDK 路径，不要提交（已在 `.gitignore` 中）。
 
 ### 签名
 
-`debug` 构建使用 `fixedDebug` 配置，读取 `~/.android/debug.keystore`（storePassword / keyPassword 均为 `android`）。GitHub Actions 通过 `secrets.DEBUG_KEYSTORE_BASE64` 还原同一份 keystore；如果换了 keystore，记得同步更新该 Secret，否则本地和 CI 打出来的 APK 签名不一致，无法互相覆盖安装。
+`debug` 构建使用 `fixedDebug` 配置，读取 `~/.android/debug.keystore`（密码均为 `android`）。GitHub Actions 通过 `secrets.DEBUG_KEYSTORE_BASE64` 还原同一份 keystore——本地和 CI 要保持同一个签名，否则打出来的 APK 无法互相覆盖安装。
 
-### 持续集成
-
-推送到 `main` 会触发 `.github/workflows/build.yml`：编译 debug APK，并以 `versionName` 为 tag 创建 Release（如 `v0.0.115`），APK 作为附件上传。
-
-## 目录结构
+### 目录结构
 
 ```
-app/src/main/java/com/example/countdown15/
-├── MainActivity.kt      # 状态机、主题、飞入/飞回动画、倒计时
-├── RingTimerView.kt     # 圆环：圆盘、轨道、进度弧、圆点、阴影
-├── WheelPicker.kt       # 自研滚轮
-└── AboutActivity.kt
-app/src/main/res/
-├── layout/activity_main.xml   # 滚轮页 + 圆环页 + 按钮
-├── layout/activity_about.xml
-├── layout/popup_menu.xml
-└── font/robotoregular.ttf
+app/src/main/
+├── java/com/example/countdown15/
+│   ├── MainActivity.kt      主界面逻辑（状态机、主题、飞入/飞回、倒计时）
+│   ├── RingTimerView.kt     圆环控件（圆盘、轨道、进度弧、圆点、阴影）
+│   ├── WheelPicker.kt       自定义滚轮控件
+│   └── AboutActivity.kt     关于页
+├── res/
+│   ├── layout/              界面布局
+│   ├── drawable/            图标、按钮背景
+│   ├── values/              颜色、主题、自定义属性
+│   ├── font/                字体（Roboto Regular）
+│   └── mipmap-*/            App 图标
+└── AndroidManifest.xml
 ```
 
-## 当前版本
+### 技术栈
 
-`0.0.115`
+- Kotlin
+- 自定义 View：`WheelPicker`、`RingTimerView` 全部手写，不依赖第三方库
+- 动画：`ValueAnimator` 逐帧驱动圆环，`ViewPropertyAnimator` 负责飞入/飞回
+- GitHub Actions：自动构建、签名、发布
+
+## 开源协议
+
+本项目采用 [MIT License](LICENSE)，可自由使用、修改、分发。
+
+## 致谢
+
+- 字体：[Roboto Regular](https://fonts.google.com/specimen/Roboto)（Apache License 2.0）
+- 图标生成：[IconKitchen](https://icon.kitchen)
+- 界面参考：小米时钟
