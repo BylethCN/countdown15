@@ -1,29 +1,54 @@
-# 倒计时15秒 · countdown15
+# 倒计时15秒
 
-一个参考**小米时钟「计时」页**的极简 Android 倒计时应用：三列滚轮选时间，按下开始后数字飞进圆环，圆环逐帧走完，到点响铃。
-
-- 包名：`com.example.countdown15`
-- minSdk 24 / targetSdk 34 / compileSdk 34
-- 当前版本：**0.0.115**
+一个简洁的 Android 倒计时小工具，界面参考小米时钟的计时页。设定时间、点开始、到点响铃，就这么简单。
 
 ## 功能
 
-- **滚轮选择**：时（0–23）/ 分（0–59）/ 秒（0–59）三列，自研 `WheelPicker`，不依赖第三方滚轮库；23↔0 循环、惯性滑动、震动反馈
-- **圆环倒计时**：大圆面 + 内缩轨道 + 蓝色剩余进度弧 + 弧末端圆点（圆点左右各留空隙，与小米一致）
-- **平滑动画**：`ValueAnimator` 逐帧更新进度（跟随屏幕刷新率），数字只在秒变化时刷新
-- **深浅色主题**：浅色 `#F7F7F7` / 深色纯黑；圆盘、轨道、弧色分别取 `#FAFAFA`、`#EDEDED`、`#3481FF`（深色模式为 `#272727`、`#383838`、`#2679F9`）
-- **飞入 / 飞回**：开始倒计时时数字从三个滚轮的位置收拢到圆心；停止时先切回设定时长，再沿原路飞回滚轮，滚轮在落位后才出现
-- **快速开始**：滑动后立刻点开始，以「当前正中间的数字」为准，不会用到惯性动画的目标值
-- **到点响铃**：播放系统闹钟铃声
-- **关于页**：版本与开源信息
+- 🕐 时/分/秒 滚轮选择，像行李箱密码锁一样滑动，支持循环
+- ⏱ 圆环倒计时：大圆面 + 内缩轨道 + 蓝色剩余进度弧 + 弧末端圆点
+- ✨ 数字飞入飞出：开始倒计时时数字从滚轮收拢到圆心，停止时沿原路飞回
+- ▶️ 一键开始，按下瞬间以「正中间的数字」为准（刚滑完立刻点也准确）
+- 🔔 到点响铃，播放系统闹钟铃声
+- 📳 触感反馈，每滑过一格轻微震动
+- 🎨 黑白双主题，右上角「更多」菜单里一键切换，自动记住
+- 📱 沉浸式全屏，没有多余的状态栏和标题栏
+- ⚙️ 关于页，包含开源代码、问题反馈、导出日志
 
-## 构建
+## 界面预览
 
-需要：
+（截图待补充）
 
-- JDK 17 及以上（Android Studio 自带的 JBR 亦可）
-- Android SDK **Platform 34**、**Build-Tools 34.0.0**、Platform-Tools
-- Gradle **9.6.0**（仓库已带 wrapper，`./gradlew` 会自动下载）
+## 下载
+
+从 [Releases](https://github.com/BylethCN/countdown15/releases) 页面下载最新的 `countdown15-vX.X.X.apk`，传到手机安装即可。
+
+- 最低支持：Android 7.0（API 24）
+- 目标版本：Android 14（API 34）
+
+## 使用说明
+
+1. 打开 App，滑动时/分/秒滚轮设定倒计时时长
+2. 点下方 ▶ 开始倒计时
+3. 倒计时中，点屏幕中间的数字可以重新开始
+4. 倒计时结束，响铃并出现 ■ 停止按钮
+5. 点 ■ 停止铃声，回到设定界面
+
+右上角 ⋮ 更多菜单：
+
+- 切换主题：黑 / 白之间切换
+- 关于：查看开源代码、反馈问题、导出日志
+
+## 开发
+
+环境：
+
+- Android Studio（或命令行 SDK）
+- JDK 17 及以上
+- Gradle **9.6.0**（仓库自带 wrapper，`./gradlew` 会自动下载；GitHub Actions 里用的是 8.7）
+- Android Gradle Plugin 8.5.2
+- Android SDK Platform 34、Build-Tools 34.0.0
+
+构建命令：
 
 ```bash
 ./gradlew assembleDebug
@@ -35,10 +60,11 @@
 
 ### 签名
 
-`debug` 构建使用 `fixedDebug` 配置，读取 `~/.android/debug.keystore`（storePassword / keyPassword 均为 `android`）。
-仓库的 GitHub Actions 通过 `secrets.DEBUG_KEYSTORE_BASE64` 还原同一份 keystore；如果换了 keystore，记得同步更新该 Secret，否则本地与 CI 的 APK 签名会不一致——不同签名的 APK 无法覆盖安装。
+`debug` 构建使用 `fixedDebug` 配置，读取 `~/.android/debug.keystore`（storePassword / keyPassword 均为 `android`）。GitHub Actions 通过 `secrets.DEBUG_KEYSTORE_BASE64` 还原同一份 keystore；如果换了 keystore，记得同步更新该 Secret，否则本地和 CI 打出来的 APK 签名不一致，无法互相覆盖安装。
 
-> JDK 25 下 Kotlin 编译守护进程可能起不来，`gradle.properties` 里已设置 `kotlin.compiler.execution.strategy=in-process` 规避。
+### 持续集成
+
+推送到 `main` 会触发 `.github/workflows/build.yml`：编译 debug APK，并以 `versionName` 为 tag 创建 Release（如 `v0.0.115`），APK 作为附件上传。
 
 ## 目录结构
 
@@ -55,6 +81,6 @@ app/src/main/res/
 └── font/robotoregular.ttf
 ```
 
-## 版本
+## 当前版本
 
-`0.0.115` — 圆环逐帧动画、圆点两侧留空、阴影 α12 / 46dp、深色配色对齐小米、快速开始取当前居中值。
+`0.0.115`
